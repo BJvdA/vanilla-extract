@@ -77,8 +77,8 @@ export type PatternOptions<
   variants?: Variants;
   defaultVariants?: VariantSelection<Variants>;
   compoundVariants?: Array<CompoundVariant<Variants>>;
-} & ConditionalAtomicOptions<Conditions, DefaultCondition> &
-  ResponsiveArrayOptions<Conditions, ResponsiveLength>;
+} & Partial<ConditionalAtomicOptions<Conditions, DefaultCondition>> &
+  Partial<ResponsiveArrayOptions<Conditions, ResponsiveLength>>;
 
 export type RuntimeFn<Variants extends VariantGroups> = (
   options?: VariantSelection<Variants>,
