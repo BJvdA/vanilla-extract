@@ -1,4 +1,4 @@
-import type { ComplexStyleRule, CSSProperties, StyleRule } from '@vanilla-extract/css';
+import type { ComplexStyleRule } from '@vanilla-extract/css';
 declare type RecipeStyleRule = ComplexStyleRule | string;
 export declare type VariantDefinitions = Record<string, RecipeStyleRule>;
 declare type BooleanMap<T> = T extends 'true' | 'false' ? boolean : T;
@@ -28,12 +28,6 @@ interface Condition {
     '@supports'?: string;
     selector?: string;
 }
-export declare type AtomicProperties = {
-    [Property in keyof CSSProperties]?: Record<string, CSSProperties[Property] | Omit<StyleRule, 'selectors' | '@media' | '@supports'>> | ReadonlyArray<CSSProperties[Property]>;
-};
-declare type UnconditionalAtomicOptions<Properties extends AtomicProperties> = {
-    properties: Properties;
-};
 export interface ResponsiveArray<Length extends number, Value> extends ReadonlyArray<Value> {
     0: Value;
     length: Length;
@@ -50,18 +44,18 @@ declare type ResponsiveArrayOptions<Conditions extends {
         length: ResponsiveLength;
     };
 };
-declare type ConditionalAtomicOptions<Properties extends AtomicProperties, Conditions extends {
+declare type ConditionalAtomicOptions<Conditions extends {
     [conditionName: string]: Condition;
-}, DefaultCondition extends keyof Conditions | Array<keyof Conditions> | false> = UnconditionalAtomicOptions<Properties> & {
+}, DefaultCondition extends keyof Conditions | Array<keyof Conditions> | false> = {
     conditions: Conditions;
     defaultCondition: DefaultCondition;
 };
-export declare type PatternOptions<Variants extends VariantGroups, Properties extends AtomicProperties, Conditions extends BaseConditions, ResponsiveLength extends number, DefaultCondition extends keyof Conditions | Array<keyof Conditions> | false> = {
+export declare type PatternOptions<Variants extends VariantGroups, Conditions extends BaseConditions, ResponsiveLength extends number, DefaultCondition extends keyof Conditions | Array<keyof Conditions> | false> = {
     base?: RecipeStyleRule;
     variants?: Variants;
     defaultVariants?: VariantSelection<Variants>;
     compoundVariants?: Array<CompoundVariant<Variants>>;
-} & ConditionalAtomicOptions<Properties, Conditions, DefaultCondition> & ResponsiveArrayOptions<Conditions, ResponsiveLength>;
+} & ConditionalAtomicOptions<Conditions, DefaultCondition> & ResponsiveArrayOptions<Conditions, ResponsiveLength>;
 export declare type RuntimeFn<Variants extends VariantGroups> = (options?: VariantSelection<Variants>) => string;
 export declare type RecipeVariants<RecipeFn extends RuntimeFn<VariantGroups>> = Parameters<RecipeFn>[0];
 export {};
