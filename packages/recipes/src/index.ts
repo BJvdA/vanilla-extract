@@ -1,8 +1,10 @@
 import { addRecipe } from '@vanilla-extract/css/recipe';
-import { style, styleVariants } from '@vanilla-extract/css';
+import { style, StyleRule } from '@vanilla-extract/css';
 
 import { createRuntimeFn } from './createRuntimeFn';
 import type {
+  AtomicProperties,
+  BaseConditions,
   PatternOptions,
   PatternResult,
   RuntimeFn,
@@ -25,8 +27,20 @@ function mapValues<Input extends Record<string, any>, OutputValue>(
   return result;
 }
 
-export function recipe<Variants extends VariantGroups>(
-  options: PatternOptions<Variants>,
+export function recipe<
+  Variants extends VariantGroups,
+  Properties extends AtomicProperties,
+  Conditions extends BaseConditions,
+  ResponsiveLength extends number,
+  DefaultCondition extends keyof Conditions | Array<keyof Conditions> | false,
+>(
+  options: PatternOptions<
+    Variants,
+    Properties,
+    Conditions,
+    ResponsiveLength,
+    DefaultCondition
+  >,
   debugId?: string,
 ): RuntimeFn<Variants> {
   const {
@@ -41,14 +55,89 @@ export function recipe<Variants extends VariantGroups>(
 
   // @ts-expect-error
   const variantClassNames: PatternResult<Variants>['variantClassNames'] =
-    mapValues(variants, (variantGroup, variantGroupName) =>
-      styleVariants(
-        variantGroup,
-        (styleRule) =>
-          typeof styleRule === 'string' ? [styleRule] : styleRule,
-        debugId ? `${debugId}_${variantGroupName}` : variantGroupName,
-      ),
-    );
+    mapValues(variants, (variantGroup: any, variantGroupName) => {
+      const styles: any = {};
+
+      for (const key in variantGroup) {
+        const styleRule = variantGroup[key];
+
+        if ('conditions' in options) {
+          styles[key] = {
+            conditions: {},
+          };
+
+          const defaultConditions = options.defaultCondition
+            ? Array.isArray(options.defaultCondition)
+              ? options.defaultCondition
+              : [options.defaultCondition]
+            : [];
+
+          const defaultClasses = [];
+
+          if ('responsiveArray' in options) {
+            styles[key].responsiveArray = options.responsiveArray;
+          }
+
+          for (const conditionName in options.conditions) {
+            let styleValue: StyleRule =
+              typeof styleRule === 'string' ? [styleRule] : styleRule;
+
+            const condition =
+              options.conditions[
+                conditionName as keyof typeof options.conditions
+              ];
+
+            if (condition['@supports']) {
+              styleValue = {
+                '@supports': {
+                  [condition['@supports']]: styleValue,
+                },
+              };
+            }
+
+            if (condition['@media']) {
+              styleValue = {
+                '@media': {
+                  [condition['@media']]: styleValue,
+                },
+              };
+            }
+
+            if (condition.selector) {
+              styleValue = {
+                selectors: {
+                  [condition.selector]: styleValue,
+                },
+              };
+            }
+
+            const className = style(
+              styleValue,
+              `${variantGroupName}_${key}_${conditionName}`,
+            );
+
+            styles[key].conditions[conditionName] = className;
+
+            if (defaultConditions.indexOf(conditionName as any) > -1) {
+              defaultClasses.push(className);
+            }
+          }
+
+          if (defaultClasses.length > 0) {
+            styles[key].defaultClass = defaultClasses.join(' ');
+          }
+        } else {
+          styles[key] = style(
+            typeof styleRule === 'string' ? [styleRule] : styleRule,
+            debugId
+              ? `${debugId}_${variantGroupName}_${key}`
+              : `${variantGroupName}_${key}`,
+          );
+        }
+      }
+
+      return styles;
+    });
 
   const compounds: Array<[VariantSelection<Variants>, string]> = [];
 

@@ -1,13 +1,23 @@
 import { defineProperties, createSprinkles } from '@vanilla-extract/sprinkles';
 import { vars } from './vars.css';
 
+export const mediaQueries = {
+  minSm: 'screen and (min-width: 768px)',
+  minMd: 'screen and (min-width: 1024px)',
+  minLg: 'screen and (min-width: 1280px)',
+  minXl: 'screen and (min-width: 1440px)',
+};
+
 const responsiveProperties = defineProperties({
   conditions: {
-    mobile: {},
-    tablet: { '@media': 'screen and (min-width: 768px)' },
-    desktop: { '@media': 'screen and (min-width: 1024px)' },
+    xs: {},
+    sm: { '@media': mediaQueries.minSm },
+    md: { '@media': mediaQueries.minMd },
+    lg: { '@media': mediaQueries.minLg },
+    xl: { '@media': mediaQueries.minXl },
   },
-  defaultCondition: 'mobile',
+  defaultCondition: 'xs',
+  responsiveArray: ['xs', 'sm', 'md', 'lg', 'xl'],
   properties: {
     display: ['none', 'flex'],
     flexDirection: ['row', 'column'],

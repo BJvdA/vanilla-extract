@@ -15,15 +15,15 @@ export const App = () => (
       padding: '6x',
     })}
   >
-    <div className={styles.card}>
+    <div className={styles.card({ bg: ['light', 'dark'], size: 'big' })}>
       <div
         className={sprinkles({
           display: 'flex',
           alignItems: 'center',
           flexDirection: 'column',
           gap: {
-            mobile: '5x',
-            desktop: '6x',
+            xs: '5x',
+            sm: '6x',
           },
         })}
       >
@@ -32,9 +32,9 @@ export const App = () => (
             fontFamily: 'body',
             textAlign: 'center',
             typeSize: {
-              mobile: '4x',
-              tablet: '4x',
-              desktop: '5x',
+              xs: '4x',
+              sm: '4x',
+              md: '5x',
             },
           })}
         >
@@ -57,9 +57,9 @@ export const App = () => (
             },
             textAlign: 'center',
             typeSize: {
-              mobile: '2x',
-              tablet: '3x',
-              desktop: '4x',
+              xs: '2x',
+              sm: '3x',
+              md: '4x',
             },
           })}
         >

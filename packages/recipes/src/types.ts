@@ -1,4 +1,8 @@
-import type { ComplexStyleRule } from '@vanilla-extract/css';
+import type {
+  ComplexStyleRule,
+  CSSProperties,
+  StyleRule,
+} from '@vanilla-extract/css';
 
 type RecipeStyleRule = ComplexStyleRule | string;
 
@@ -25,12 +29,76 @@ export interface CompoundVariant<Variants extends VariantGroups> {
   style: RecipeStyleRule;
 }
 
-export type PatternOptions<Variants extends VariantGroups> = {
+export type BaseConditions = { [conditionName: string]: Condition };
+
+interface Condition {
+  '@media'?: string;
+  '@supports'?: string;
+  selector?: string;
+}
+
+export type AtomicProperties = {
+  [Property in keyof CSSProperties]?:
+    | Record<
+        string,
+        | CSSProperties[Property]
+        | Omit<StyleRule, 'selectors' | '@media' | '@supports'>
+      >
+    | ReadonlyArray<CSSProperties[Property]>;
+};
+
+type UnconditionalAtomicOptions<Properties extends AtomicProperties> = {
+  properties: Properties;
+};
+
+export interface ResponsiveArray<Length extends number, Value>
+  extends ReadonlyArray<Value> {
+  0: Value;
+  length: Length;
+}
+
+export interface RequiredResponsiveArray<Length extends number, Value>
+  extends ReadonlyArray<Value> {
+  0: Exclude<Value, null>;
+  length: Length;
+}
+
+export type ResponsiveArrayConfig<Value> = ResponsiveArray<
+  2 | 3 | 4 | 5 | 6 | 7 | 8,
+  Value
+>;
+
+type ResponsiveArrayOptions<
+  Conditions extends { [conditionName: string]: Condition },
+  ResponsiveLength extends number,
+> = {
+  responsiveArray: ResponsiveArrayConfig<keyof Conditions> & {
+    length: ResponsiveLength;
+  };
+};
+
+type ConditionalAtomicOptions<
+  Properties extends AtomicProperties,
+  Conditions extends { [conditionName: string]: Condition },
+  DefaultCondition extends keyof Conditions | Array<keyof Conditions> | false,
+> = UnconditionalAtomicOptions<Properties> & {
+  conditions: Conditions;
+  defaultCondition: DefaultCondition;
+};
+
+export type PatternOptions<
+  Variants extends VariantGroups,
+  Properties extends AtomicProperties,
+  Conditions extends BaseConditions,
+  ResponsiveLength extends number,
+  DefaultCondition extends keyof Conditions | Array<keyof Conditions> | false,
+> = {
   base?: RecipeStyleRule;
   variants?: Variants;
   defaultVariants?: VariantSelection<Variants>;
   compoundVariants?: Array<CompoundVariant<Variants>>;
-};
+} & ConditionalAtomicOptions<Properties, Conditions, DefaultCondition> &
+  ResponsiveArrayOptions<Conditions, ResponsiveLength>;
 
 export type RuntimeFn<Variants extends VariantGroups> = (
   options?: VariantSelection<Variants>,
