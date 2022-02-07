@@ -3,7 +3,6 @@ import { style, StyleRule } from '@vanilla-extract/css';
 
 import { createRuntimeFn } from './createRuntimeFn';
 import type {
-  AtomicProperties,
   BaseConditions,
   PatternOptions,
   PatternResult,
@@ -29,14 +28,12 @@ function mapValues<Input extends Record<string, any>, OutputValue>(
 
 export function recipe<
   Variants extends VariantGroups,
-  Properties extends AtomicProperties,
   Conditions extends BaseConditions,
   ResponsiveLength extends number,
   DefaultCondition extends keyof Conditions | Array<keyof Conditions> | false,
 >(
   options: PatternOptions<
     Variants,
-    Properties,
     Conditions,
     ResponsiveLength,
     DefaultCondition
