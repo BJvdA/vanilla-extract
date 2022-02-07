@@ -55,7 +55,7 @@ export declare type PatternOptions<Variants extends VariantGroups, Conditions ex
     variants?: Variants;
     defaultVariants?: VariantSelection<Variants>;
     compoundVariants?: Array<CompoundVariant<Variants>>;
-} & ConditionalAtomicOptions<Conditions, DefaultCondition> & ResponsiveArrayOptions<Conditions, ResponsiveLength>;
+} & Partial<ConditionalAtomicOptions<Conditions, DefaultCondition>> & Partial<ResponsiveArrayOptions<Conditions, ResponsiveLength>>;
 export declare type RuntimeFn<Variants extends VariantGroups> = (options?: VariantSelection<Variants>) => string;
 export declare type RecipeVariants<RecipeFn extends RuntimeFn<VariantGroups>> = Parameters<RecipeFn>[0];
 export {};
