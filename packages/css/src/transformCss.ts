@@ -255,6 +255,11 @@ class Stylesheet {
       });
     }
 
+    // Make sprinkles more specific than other classes
+    if (transformedSelector.startsWith('sprinkles_')) {
+      transformedSelector = `${transformedSelector}.${transformedSelector}`;
+    }
+
     return this.localClassNameRegex
       ? transformedSelector.replace(
           this.localClassNameRegex,

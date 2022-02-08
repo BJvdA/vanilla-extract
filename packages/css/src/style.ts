@@ -99,7 +99,7 @@ export function fontFace(rule: FontFaceRule, debugId?: string) {
     throw new Error(
       outdent`
           This function creates and returns a hashed font-family name, so the "fontFamily" property should not be provided.
-  
+
           If you'd like to define a globally scoped custom font, you can use the "globalFontFace" function instead.
         `,
     );
