@@ -147,14 +147,12 @@ export function recipe<
   for (const { style: theStyle, variants } of compoundVariants) {
     compounds.push([
       variants,
-      getStyleValues(
-        options,
-        (typeof theStyle === 'string' ? [theStyle] : theStyle) as StyleRule,
-        () => {
-          const id = `compound_${compounds.length}`;
-          return debugId ? `${debugId}_${id}` : id;
-        },
-      ),
+      typeof theStyle === 'string'
+        ? theStyle
+        : getStyleValues(options, theStyle, () => {
+            const id = `compound_${compounds.length}`;
+            return debugId ? `${debugId}_${id}` : id;
+          }),
     ]);
   }
 

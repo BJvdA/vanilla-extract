@@ -55,7 +55,7 @@ export const App = () => (
         </h1>
         <h2
           className={`${styles.text({
-            variant: 'heading',
+            variant: ['heading', 'display'],
             size: 'xxl',
           })} ${sprinkles({
             fontFamily: 'body',

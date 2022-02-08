@@ -21,7 +21,7 @@ const getApplicableCompounds = <Variants extends VariantGroups>(
       }
 
       if (!responsiveSize) {
-        responsiveSize = compoundClassNames.responsiveArray[responsiveIndex];
+        responsiveSize = compoundClassNames?.responsiveArray?.[responsiveIndex];
       }
     } else if (typeof selections[key] === 'object') {
       if (!Object.values(selections[key]).includes(compoundCheck[key])) {
