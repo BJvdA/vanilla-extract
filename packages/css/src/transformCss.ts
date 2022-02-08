@@ -256,7 +256,10 @@ class Stylesheet {
     }
 
     // Make sprinkles more specific than other classes
-    if (transformedSelector.startsWith('sprinkles_')) {
+    if (
+      transformedSelector.startsWith('sprinkles_') ||
+      transformedSelector.startsWith('_')
+    ) {
       transformedSelector = `${transformedSelector}.${transformedSelector}`;
     }
 
