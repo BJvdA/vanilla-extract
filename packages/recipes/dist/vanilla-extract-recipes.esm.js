@@ -102,7 +102,7 @@ function recipe(options, debugId) {
     style: theStyle,
     variants: _variants
   } of compoundVariants) {
-    compounds.push([_variants, getStyleValues(options, typeof theStyle === 'string' ? [theStyle] : theStyle, () => {
+    compounds.push([_variants, typeof theStyle === 'string' ? theStyle : getStyleValues(options, theStyle, () => {
       var id = "compound_".concat(compounds.length);
       return debugId ? "".concat(debugId, "_").concat(id) : id;
     })]);

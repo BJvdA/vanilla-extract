@@ -67,7 +67,9 @@ var getApplicableCompounds = (compoundClassNames, compoundCheck, selections) => 
       }
 
       if (!responsiveSize) {
-        responsiveSize = compoundClassNames.responsiveArray[responsiveIndex];
+        var _compoundClassNames$r;
+
+        responsiveSize = compoundClassNames === null || compoundClassNames === void 0 ? void 0 : (_compoundClassNames$r = compoundClassNames.responsiveArray) === null || _compoundClassNames$r === void 0 ? void 0 : _compoundClassNames$r[responsiveIndex];
       }
     } else if (typeof selections[key] === 'object') {
       if (!Object.values(selections[key]).includes(compoundCheck[key])) {
