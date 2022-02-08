@@ -1,7 +1,4 @@
 node_modules
-dist
-!packages/css/dist
-!packages/recipes/dist
 tsconfig.tsbuildinfo
 packages/**/README.md
 !packages/sprinkles/README.md
