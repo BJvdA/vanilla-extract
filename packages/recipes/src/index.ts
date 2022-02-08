@@ -26,6 +26,77 @@ function mapValues<Input extends Record<string, any>, OutputValue>(
   return result;
 }
 
+function getStyleValues(
+  options: any,
+  styleRule: StyleRule,
+  getId: () => string,
+) {
+  if ('conditions' in options) {
+    const result: any = {
+      conditions: {},
+    };
+
+    const defaultConditions = options.defaultCondition
+      ? Array.isArray(options.defaultCondition)
+        ? options.defaultCondition
+        : [options.defaultCondition]
+      : [];
+
+    const defaultClasses = [];
+
+    if ('responsiveArray' in options) {
+      result.responsiveArray = options.responsiveArray;
+    }
+
+    for (const conditionName in options.conditions) {
+      let styleValue: StyleRule = styleRule;
+
+      const condition =
+        options.conditions[conditionName as keyof typeof options.conditions];
+
+      if (condition['@supports']) {
+        styleValue = {
+          '@supports': {
+            [condition['@supports']]: styleValue,
+          },
+        };
+      }
+
+      if (condition['@media']) {
+        styleValue = {
+          '@media': {
+            [condition['@media']]: styleValue,
+          },
+        };
+      }
+
+      if (condition.selector) {
+        styleValue = {
+          selectors: {
+            [condition.selector]: styleValue,
+          },
+        };
+      }
+
+      const className = style(styleValue, `${getId()}_${conditionName}`);
+
+      result.conditions[conditionName] = className;
+
+      if (defaultConditions.indexOf(conditionName as any) > -1) {
+        defaultClasses.push(className);
+      }
+    }
+
+    if (defaultClasses.length > 0) {
+      result.defaultClass = defaultClasses.join(' ');
+    }
+
+    return result;
+  } else {
+    return style(styleRule, getId());
+  }
+}
+
 export function recipe<
   Variants extends VariantGroups,
   Conditions extends BaseConditions,
@@ -58,79 +129,14 @@ export function recipe<
       for (const key in variantGroup) {
         const styleRule = variantGroup[key];
 
-        if ('conditions' in options) {
-          styles[key] = {
-            conditions: {},
-          };
-
-          const defaultConditions = options.defaultCondition
-            ? Array.isArray(options.defaultCondition)
-              ? options.defaultCondition
-              : [options.defaultCondition]
-            : [];
-
-          const defaultClasses = [];
-
-          if ('responsiveArray' in options) {
-            styles[key].responsiveArray = options.responsiveArray;
-          }
-
-          for (const conditionName in options.conditions) {
-            let styleValue: StyleRule =
-              typeof styleRule === 'string' ? [styleRule] : styleRule;
-
-            const condition =
-              options.conditions[
-                conditionName as keyof typeof options.conditions
-              ];
-
-            if (condition['@supports']) {
-              styleValue = {
-                '@supports': {
-                  [condition['@supports']]: styleValue,
-                },
-              };
-            }
-
-            if (condition['@media']) {
-              styleValue = {
-                '@media': {
-                  [condition['@media']]: styleValue,
-                },
-              };
-            }
-
-            if (condition.selector) {
-              styleValue = {
-                selectors: {
-                  [condition.selector]: styleValue,
-                },
-              };
-            }
-
-            const className = style(
-              styleValue,
-              `${variantGroupName}_${key}_${conditionName}`,
-            );
-
-            styles[key].conditions[conditionName] = className;
-
-            if (defaultConditions.indexOf(conditionName as any) > -1) {
-              defaultClasses.push(className);
-            }
-          }
-
-          if (defaultClasses.length > 0) {
-            styles[key].defaultClass = defaultClasses.join(' ');
-          }
-        } else {
-          styles[key] = style(
-            typeof styleRule === 'string' ? [styleRule] : styleRule,
-            debugId
-              ? `${debugId}_${variantGroupName}_${key}`
-              : `${variantGroupName}_${key}`,
-          );
-        }
+        styles[key] = getStyleValues(
+          options,
+          typeof styleRule === 'string' ? [styleRule] : styleRule,
+          () => {
+            const id = `${variantGroupName}_${key}`;
+            return debugId ? `${debugId}_${id}` : id;
+          },
+        );
       }
 
       return styles;
@@ -141,9 +147,14 @@ export function recipe<
   for (const { style: theStyle, variants } of compoundVariants) {
     compounds.push([
       variants,
-      typeof theStyle === 'string'
-        ? theStyle
-        : style(theStyle, `${debugId}_compound_${compounds.length}`),
+      getStyleValues(
+        options,
+        (typeof theStyle === 'string' ? [theStyle] : theStyle) as StyleRule,
+        () => {
+          const id = `compound_${compounds.length}`;
+          return debugId ? `${debugId}_${id}` : id;
+        },
+      ),
     ]);
   }
 

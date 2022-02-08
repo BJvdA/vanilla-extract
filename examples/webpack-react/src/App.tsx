@@ -15,7 +15,12 @@ export const App = () => (
       padding: '6x',
     })}
   >
-    <div className={styles.card({ bg: ['light', 'dark'], size: 'big' })}>
+    <div
+      className={`${styles.card({
+        bg: ['light', 'dark'],
+        size: 'big',
+      })} ${sprinkles({ borderRadius: '0x' })}`}
+    >
       <div
         className={sprinkles({
           display: 'flex',

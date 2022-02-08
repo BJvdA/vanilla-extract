@@ -5,17 +5,44 @@ import type {
   VariantSelection,
 } from './types';
 
-const shouldApplyCompound = <Variants extends VariantGroups>(
+const getApplicableCompounds = <Variants extends VariantGroups>(
+  compoundClassNames: any,
   compoundCheck: VariantSelection<Variants>,
-  selections: VariantSelection<Variants>,
+  selections: any,
 ) => {
+  let responsiveSize;
+
   for (const key of Object.keys(compoundCheck)) {
-    if (compoundCheck[key] !== selections[key]) {
+    if (Array.isArray(selections[key])) {
+      const responsiveIndex = selections[key].indexOf(compoundCheck[key]);
+
+      if (responsiveIndex === -1) {
+        return false;
+      }
+
+      if (!responsiveSize) {
+        responsiveSize = compoundClassNames.responsiveArray[responsiveIndex];
+      }
+    } else if (typeof selections[key] === 'object') {
+      if (!Object.values(selections[key]).includes(compoundCheck[key])) {
+        return false;
+      }
+    } else if (compoundCheck[key] !== selections[key]) {
       return false;
     }
   }
 
-  return true;
+  if (responsiveSize) {
+    if (process.env.NODE_ENV !== 'production') {
+      if (!compoundClassNames?.conditions?.[responsiveSize]) {
+        throw new Error();
+      }
+    }
+
+    return compoundClassNames.conditions[responsiveSize];
+  }
+
+  return responsiveSize?.defaultClass || responsiveSize;
 };
 
 export const createRuntimeFn =
@@ -84,8 +111,14 @@ export const createRuntimeFn =
       }
     }
 
-    for (const [compoundCheck, compoundClassName] of config.compoundVariants) {
-      if (shouldApplyCompound(compoundCheck, selections)) {
+    for (const [compoundCheck, compoundClassNames] of config.compoundVariants) {
+      const compoundClassName = getApplicableCompounds(
+        compoundClassNames,
+        compoundCheck,
+        selections,
+      );
+
+      if (compoundClassName) {
         className += ' ' + compoundClassName;
       }
     }

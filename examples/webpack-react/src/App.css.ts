@@ -21,16 +21,13 @@ export const card = recipe({
   responsiveArray: ['xs', 'sm', 'md', 'lg', 'xl'],
   base: [
     sprinkles({
-      borderRadius: {
-        xs: '4x',
-        sm: '5x',
-      },
       padding: {
         xs: '7x',
         sm: '8x',
       },
     }),
     {
+      borderRadius: '20px',
       transition: 'transform 4s ease-in-out',
       ':hover': {
         cursor: 'default',
@@ -40,12 +37,8 @@ export const card = recipe({
   ],
   variants: {
     bg: {
-      light: {
-        backgroundColor: vars.color['green-50'],
-      },
-      dark: {
-        backgroundColor: vars.color['gray-800'],
-      },
+      light: {},
+      dark: {},
     },
     size: {
       big: {
@@ -53,4 +46,24 @@ export const card = recipe({
       },
     },
   },
+  compoundVariants: [
+    {
+      variants: {
+        bg: 'light',
+        size: 'big',
+      },
+      style: {
+        backgroundColor: vars.color['green-50'],
+      },
+    },
+    {
+      variants: {
+        bg: 'dark',
+        size: 'big',
+      },
+      style: {
+        backgroundColor: vars.color['gray-800'],
+      },
+    },
+  ],
 });
