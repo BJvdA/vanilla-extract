@@ -1,4 +1,6 @@
+import { styleVariants } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
+
 import { sprinkles } from './sprinkles.css';
 import { vars } from './vars.css';
 
@@ -68,13 +70,41 @@ export const card = recipe({
   ],
 });
 
+const variant = styleVariants({
+  heading: {},
+  display: {},
+});
+
+const size = styleVariants({
+  small: [
+    sprinkles({
+      lineHeight: '1x',
+    }),
+  ],
+  big: [
+    sprinkles({
+      lineHeight: '5x',
+    }),
+  ],
+});
+
+const responsive = {
+  conditions: {
+    xs: {},
+    sm: { '@media': mediaQueries.minSm },
+    md: { '@media': mediaQueries.minMd },
+    lg: { '@media': mediaQueries.minLg },
+    xl: { '@media': mediaQueries.minXl },
+  },
+  defaultCondition: 'xs',
+  responsiveArray: ['xs', 'sm', 'md', 'lg', 'xl'],
+};
+
 export const text = recipe({
+  ...responsive,
   variants: {
-    variant: {
-      heading: {},
-      display: {},
-    },
-    size: { small: {}, big: {} },
+    variant,
+    size,
   },
   compoundVariants: [
     {
@@ -82,7 +112,7 @@ export const text = recipe({
       style: sprinkles({ fontSize: '1x', color: 'green-400' }),
     },
     {
-      variants: { variant: 'display', size: 'sm' },
+      variants: { variant: 'display', size: 'xxl' },
       style: sprinkles({ fontSize: '5x', color: 'green-500' }),
     },
   ],
