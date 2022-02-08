@@ -67,3 +67,23 @@ export const card = recipe({
     },
   ],
 });
+
+export const text = recipe({
+  variants: {
+    variant: {
+      heading: {},
+      display: {},
+    },
+    size: { small: {}, big: {} },
+  },
+  compoundVariants: [
+    {
+      variants: { variant: 'heading', size: 'xxl' },
+      style: sprinkles({ fontSize: '1x', color: 'green-400' }),
+    },
+    {
+      variants: { variant: 'display', size: 'sm' },
+      style: sprinkles({ fontSize: '5x', color: 'green-500' }),
+    },
+  ],
+});

@@ -54,19 +54,13 @@ export const App = () => (
           </span>
         </h1>
         <h2
-          className={sprinkles({
+          className={`${styles.text({
+            variant: 'heading',
+            size: 'xxl',
+          })} ${sprinkles({
             fontFamily: 'body',
-            color: {
-              lightMode: 'green-700',
-              darkMode: 'green-50',
-            },
             textAlign: 'center',
-            typeSize: {
-              xs: '2x',
-              sm: '3x',
-              md: '4x',
-            },
-          })}
+          })}`}
         >
           Hello from vanilla-extract and Sprinkles
         </h2>

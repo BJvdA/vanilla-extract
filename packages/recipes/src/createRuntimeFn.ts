@@ -42,7 +42,7 @@ const getApplicableCompounds = <Variants extends VariantGroups>(
     return compoundClassNames.conditions[responsiveSize];
   }
 
-  return responsiveSize?.defaultClass || responsiveSize;
+  return compoundClassNames?.defaultClass || compoundClassNames;
 };
 
 export const createRuntimeFn =
