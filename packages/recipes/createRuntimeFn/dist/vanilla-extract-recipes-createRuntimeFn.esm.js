@@ -52,8 +52,6 @@ function _objectSpread2(target) {
 }
 
 var getApplicableCompounds = (compoundClassNames, compoundCheck, selections) => {
-  var _responsiveSize;
-
   var responsiveSize;
 
   for (var key of Object.keys(compoundCheck)) {
@@ -88,7 +86,7 @@ var getApplicableCompounds = (compoundClassNames, compoundCheck, selections) => 
     return compoundClassNames.conditions[responsiveSize];
   }
 
-  return ((_responsiveSize = responsiveSize) === null || _responsiveSize === void 0 ? void 0 : _responsiveSize.defaultClass) || responsiveSize;
+  return (compoundClassNames === null || compoundClassNames === void 0 ? void 0 : compoundClassNames.defaultClass) || compoundClassNames;
 };
 
 var createRuntimeFn = config => options => {

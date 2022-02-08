@@ -687,7 +687,7 @@ class Stylesheet {
     } // Make sprinkles more specific than other classes
 
 
-    if (transformedSelector.startsWith('sprinkles_')) {
+    if (transformedSelector.startsWith('sprinkles_') || transformedSelector.startsWith('_')) {
       transformedSelector = "".concat(transformedSelector, ".").concat(transformedSelector);
     }
 
