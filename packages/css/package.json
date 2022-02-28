@@ -75,7 +75,9 @@
       },
       "module": "./disableRuntimeStyles/dist/vanilla-extract-css-disableRuntimeStyles.esm.js",
       "default": "./disableRuntimeStyles/dist/vanilla-extract-css-disableRuntimeStyles.cjs.js"
-    }
+    },
+    "./dist/*": "./dist/*",
+    "./fileScope/dist/*": "./fileScope/dist/*"
   },
   "preconstruct": {
     "entrypoints": [
