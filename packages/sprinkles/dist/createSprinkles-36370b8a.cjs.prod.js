@@ -60,7 +60,7 @@ var createSprinkles = composeStyles => function () {
 
   var sprinklesStyles = Object.assign({}, ...args.map(a => a.styles));
   var sprinklesKeys = Object.keys(sprinklesStyles);
-  var shorthandNames = sprinklesKeys.filter(property => 'mappings' in sprinklesStyles[property]);
+  var shorthandNames = sprinklesKeys.filter(property => typeof sprinklesStyles[property] === 'object' && 'mappings' in sprinklesStyles[property]);
 
   var sprinklesFn = props => {
     var classNames = [];
@@ -77,11 +77,13 @@ var createSprinkles = composeStyles => function () {
         var sprinkle = sprinklesStyles[shorthand];
         hasShorthands = true;
 
-        for (var propMapping of sprinkle.mappings) {
-          shorthands[propMapping] = value;
+        if (sprinkle !== null && sprinkle !== void 0 && sprinkle.mappings) {
+          for (var propMapping of sprinkle === null || sprinkle === void 0 ? void 0 : sprinkle.mappings) {
+            shorthands[propMapping] = value;
 
-          if (nonShorthands[propMapping] == null) {
-            delete nonShorthands[propMapping];
+            if (nonShorthands[propMapping] == null) {
+              delete nonShorthands[propMapping];
+            }
           }
         }
       }
@@ -89,30 +91,38 @@ var createSprinkles = composeStyles => function () {
 
     var finalProps = hasShorthands ? _objectSpread2(_objectSpread2({}, shorthands), nonShorthands) : props;
 
-    for (var prop in finalProps) {
+    var _loop = function _loop(prop) {
       var propValue = finalProps[prop];
-      var _sprinkle = sprinklesStyles[prop];
+      var sprinkle = sprinklesStyles[prop];
 
       try {
-        if (_sprinkle.mappings) {
+        if (sprinkle !== null && sprinkle !== void 0 && sprinkle.mappings) {
           // Skip shorthands
-          continue;
+          return "continue";
         }
 
         if (typeof propValue === 'string' || typeof propValue === 'number') {
-          if (        "production" !== 'production') ;
+          var _args$find, _args$find$conditions;
 
-          classNames.push(_sprinkle.values[propValue].defaultClass);
+          var defaultCondition = (_args$find = args.find(_ref => {
+            var {
+              styles
+            } = _ref;
+            return Object.keys(styles).find(k => k === prop);
+          })) === null || _args$find === void 0 ? void 0 : (_args$find$conditions = _args$find.conditions) === null || _args$find$conditions === void 0 ? void 0 : _args$find$conditions.defaultCondition;
+
+          if (defaultCondition) {
+            classNames.push([prop, propValue, defaultCondition].join('_'));
+          } else if (sprinkle !== 1) {
+            classNames.push(sprinkle.values[propValue].defaultClass);
+          }
         } else if (Array.isArray(propValue)) {
           for (var responsiveIndex in propValue) {
             var responsiveValue = propValue[responsiveIndex];
 
-            if (responsiveValue != null) {
-              var conditionName = _sprinkle.responsiveArray[responsiveIndex];
-
-              if (        "production" !== 'production') ;
-
-              classNames.push(_sprinkle.values[responsiveValue].conditions[conditionName]);
+            if (responsiveValue != null && sprinkle) {
+              var conditionName = sprinkle.responsiveArray[responsiveIndex];
+              classNames.push([prop, responsiveValue, conditionName].join('_'));
             }
           }
         } else {
@@ -121,9 +131,7 @@ var createSprinkles = composeStyles => function () {
             var _value = propValue[_conditionName];
 
             if (_value != null) {
-              if (        "production" !== 'production') ;
-
-              classNames.push(_sprinkle.values[_value].conditions[_conditionName]);
+              classNames.push([prop, _value, _conditionName].join('_'));
             }
           }
         }
@@ -131,6 +139,12 @@ var createSprinkles = composeStyles => function () {
 
         throw e;
       }
+    };
+
+    for (var prop in finalProps) {
+      var _ret = _loop(prop);
+
+      if (_ret === "continue") continue;
     }
 
     return composeStyles(classNames.join(' '));

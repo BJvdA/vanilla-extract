@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var createSprinkles$1 = require('../../dist/createSprinkles-3054d416.cjs.dev.js');
+var createSprinkles$1 = require('../../dist/createSprinkles-a0040a04.cjs.dev.js');
 
 var composeStyles = classList => classList;
 

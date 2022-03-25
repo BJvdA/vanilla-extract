@@ -5,7 +5,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var css = require('@vanilla-extract/css');
 var recipe = require('@vanilla-extract/css/recipe');
 var fileScope = require('@vanilla-extract/css/fileScope');
-var createSprinkles$1 = require('./createSprinkles-41696ec2.cjs.prod.js');
+var createSprinkles$1 = require('./createSprinkles-36370b8a.cjs.prod.js');
 var createUtils_dist_vanillaExtractSprinklesCreateUtils = require('../createUtils/dist/vanilla-extract-sprinkles-createUtils.cjs.prod.js');
 
 function defineProperties(options) {
@@ -18,19 +18,15 @@ function defineProperties(options) {
 
   var _loop = function _loop(key) {
     var property = options.properties[key];
-    styles[key] = {
-      values: {}
-    };
-
-    if ('responsiveArray' in options) {
-      styles[key].responsiveArray = options.responsiveArray;
-    }
+    styles[key] = 1; // if ('responsiveArray' in options) {
+    //   styles[key].responsiveArray = options.responsiveArray;
+    // }
 
     var processValue = (valueName, value) => {
       if ('conditions' in options) {
-        styles[key].values[valueName] = {
-          conditions: {}
-        };
+        // styles[key].values[valueName] = {
+        //   conditions: {},
+        // };
         var defaultConditions = options.defaultCondition ? Array.isArray(options.defaultCondition) ? options.defaultCondition : [options.defaultCondition] : [];
         var defaultClasses = [];
 
@@ -64,25 +60,34 @@ function defineProperties(options) {
             };
           }
 
-          var className = css.style(styleValue, "".concat(key, "_").concat(String(valueName), "_").concat(_conditionName));
-          styles[key].values[valueName].conditions[_conditionName] = className;
+          var className = css.style(styleValue, undefined, "".concat(key, "_").concat(String(valueName), "_").concat(_conditionName)); // styles[key].values[valueName].conditions[conditionName] = className;
 
           if (defaultConditions.indexOf(_conditionName) > -1) {
             defaultClasses.push(className);
           }
         }
 
-        if (defaultClasses.length > 0) {
-          styles[key].values[valueName].defaultClass = defaultClasses.join(' ');
-        }
+        if (defaultClasses.length > 0) ;
       } else {
         var _styleValue = typeof value === 'object' ? value : {
           [key]: value
         };
 
-        styles[key].values[valueName] = {
-          defaultClass: css.style(_styleValue, "".concat(key, "_").concat(String(valueName)))
-        };
+        var defaultClass = css.style(_styleValue, "".concat(key, "_").concat(String(valueName)));
+
+        if (styles[key] === 1) {
+          styles[key] = {
+            values: {
+              [valueName]: {
+                defaultClass
+              }
+            }
+          };
+        } else {
+          styles[key].values[valueName] = {
+            defaultClass
+          };
+        }
       }
     };
 

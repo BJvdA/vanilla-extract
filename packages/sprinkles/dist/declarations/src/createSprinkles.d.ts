@@ -22,5 +22,7 @@ declare type SprinkleProps<Args extends ReadonlyArray<any>> = Args extends [
 export declare type SprinklesFn<Args extends ReadonlyArray<SprinklesProperties>> = ((props: SprinkleProps<Args>) => string) & {
     properties: Set<keyof SprinkleProps<Args>>;
 };
-export declare const createSprinkles: <Args extends readonly SprinklesProperties[]>(composeStyles: (classList: string) => string) => (...args: Args) => SprinklesFn<Args>;
+export declare const createSprinkles: <Args extends readonly (SprinklesProperties & {
+    conditions?: any;
+})[]>(composeStyles: (classList: string) => string) => (...args: Args) => SprinklesFn<Args>;
 export {};

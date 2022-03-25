@@ -332,8 +332,8 @@ function createTheme(arg1, arg2, arg3) {
 
 var _templateObject;
 
-function composedStyle(rules, debugId) {
-  var className = generateIdentifier(debugId);
+function composedStyle(rules, debugId, forceId) {
+  var className = forceId || generateIdentifier(debugId);
   registerClassName(className);
   var classList = [];
   var styleRules = [];
@@ -378,12 +378,12 @@ function composedStyle(rules, debugId) {
   return result;
 }
 
-function style(rule, debugId) {
+function style(rule, debugId, forceId) {
   if (Array.isArray(rule)) {
-    return composedStyle(rule, debugId);
+    return composedStyle(rule, debugId, forceId);
   }
 
-  var className = generateIdentifier(debugId);
+  var className = forceId || generateIdentifier(debugId);
   registerClassName(className);
   appendCss({
     type: 'local',

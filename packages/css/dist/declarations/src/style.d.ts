@@ -1,5 +1,5 @@
 import type { FontFaceRule, CSSKeyframes, GlobalStyleRule, ClassNames, ComplexStyleRule } from './types';
-export declare function style(rule: ComplexStyleRule, debugId?: string): string;
+export declare function style(rule: ComplexStyleRule, debugId?: string, forceId?: string): string;
 /**
  * @deprecated The same functionality is now provided by the 'style' function when you pass it an array
  */
