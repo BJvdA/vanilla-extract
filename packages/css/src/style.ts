@@ -20,8 +20,12 @@ import { getFileScope, hasFileScope } from './fileScope';
 import { generateIdentifier } from './identifier';
 import { dudupeAndJoinClassList } from './utils';
 
-function composedStyle(rules: Array<StyleRule | ClassNames>, debugId?: string) {
-  const className = generateIdentifier(debugId);
+function composedStyle(
+  rules: Array<StyleRule | ClassNames>,
+  debugId?: string,
+  forceId?: string,
+) {
+  const className = forceId || generateIdentifier(debugId);
   registerClassName(className);
 
   const classList = [];
@@ -64,12 +68,16 @@ function composedStyle(rules: Array<StyleRule | ClassNames>, debugId?: string) {
   return result;
 }
 
-export function style(rule: ComplexStyleRule, debugId?: string) {
+export function style(
+  rule: ComplexStyleRule,
+  debugId?: string,
+  forceId?: string,
+) {
   if (Array.isArray(rule)) {
-    return composedStyle(rule, debugId);
+    return composedStyle(rule, debugId, forceId);
   }
 
-  const className = generateIdentifier(debugId);
+  const className = forceId || generateIdentifier(debugId);
 
   registerClassName(className);
   appendCss({ type: 'local', selector: className, rule }, getFileScope());

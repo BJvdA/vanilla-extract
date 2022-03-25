@@ -65,7 +65,7 @@ export type SprinklesFn<Args extends ReadonlyArray<SprinklesProperties>> = ((
 ) => string) & { properties: Set<keyof SprinkleProps<Args>> };
 
 export const createSprinkles =
-  <Args extends ReadonlyArray<SprinklesProperties>>(
+  <Args extends ReadonlyArray<SprinklesProperties & { conditions?: any }>>(
     composeStyles: (classList: string) => string,
   ) =>
   (...args: Args): SprinklesFn<Args> => {
@@ -74,7 +74,9 @@ export const createSprinkles =
       keyof SprinkleProps<Args>
     >;
     const shorthandNames = sprinklesKeys.filter(
-      (property) => 'mappings' in sprinklesStyles[property],
+      (property) =>
+        typeof sprinklesStyles[property] === 'object' &&
+        'mappings' in sprinklesStyles[property],
     );
 
     const sprinklesFn = (props: any) => {
@@ -88,10 +90,13 @@ export const createSprinkles =
         if (value != null) {
           const sprinkle = sprinklesStyles[shorthand];
           hasShorthands = true;
-          for (const propMapping of sprinkle.mappings) {
-            shorthands[propMapping] = value;
-            if (nonShorthands[propMapping] == null) {
-              delete nonShorthands[propMapping];
+
+          if (sprinkle?.mappings) {
+            for (const propMapping of sprinkle?.mappings) {
+              shorthands[propMapping] = value;
+              if (nonShorthands[propMapping] == null) {
+                delete nonShorthands[propMapping];
+              }
             }
           }
         }
@@ -105,35 +110,30 @@ export const createSprinkles =
         const propValue = finalProps[prop];
         const sprinkle = sprinklesStyles[prop];
         try {
-          if (sprinkle.mappings) {
+          if (sprinkle?.mappings) {
             // Skip shorthands
             continue;
           }
 
           if (typeof propValue === 'string' || typeof propValue === 'number') {
-            if (process.env.NODE_ENV !== 'production') {
-              if (!sprinkle.values[propValue].defaultClass) {
-                throw new Error();
-              }
+            const defaultCondition = args.find(({ styles }) =>
+              Object.keys(styles).find((k) => k === prop),
+            )?.conditions?.defaultCondition;
+
+            if (defaultCondition) {
+              classNames.push([prop, propValue, defaultCondition].join('_'));
+            } else if (sprinkle !== 1) {
+              classNames.push(sprinkle.values[propValue].defaultClass);
             }
-            classNames.push(sprinkle.values[propValue].defaultClass);
           } else if (Array.isArray(propValue)) {
             for (const responsiveIndex in propValue) {
               const responsiveValue = propValue[responsiveIndex];
 
-              if (responsiveValue != null) {
+              if (responsiveValue != null && sprinkle) {
                 const conditionName = sprinkle.responsiveArray[responsiveIndex];
 
-                if (process.env.NODE_ENV !== 'production') {
-                  if (
-                    !sprinkle.values[responsiveValue].conditions[conditionName]
-                  ) {
-                    throw new Error();
-                  }
-                }
-
                 classNames.push(
-                  sprinkle.values[responsiveValue].conditions[conditionName],
+                  [prop, responsiveValue, conditionName].join('_'),
                 );
               }
             }
@@ -143,14 +143,7 @@ export const createSprinkles =
               const value = propValue[conditionName];
 
               if (value != null) {
-                if (process.env.NODE_ENV !== 'production') {
-                  if (!sprinkle.values[value].conditions[conditionName]) {
-                    throw new Error();
-                  }
-                }
-                classNames.push(
-                  sprinkle.values[value].conditions[conditionName],
-                );
+                classNames.push([prop, value, conditionName].join('_'));
               }
             }
           }
