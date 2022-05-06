@@ -1,18 +1,10 @@
-'use strict';
-
-var _private = require('@vanilla-extract/private');
-var cssesc = require('cssesc');
-var escapeStringRegexp = require('escape-string-regexp');
-var adapter_dist_vanillaExtractCssAdapter = require('../adapter/dist/vanilla-extract-css-adapter.cjs.dev.js');
-var taggedTemplateLiteral = require('./taggedTemplateLiteral-975613a0.cjs.dev.js');
-var cssWhat = require('css-what');
-var outdent = require('outdent');
-
-function _interopDefault (e) { return e && e.__esModule ? e : { 'default': e }; }
-
-var cssesc__default = /*#__PURE__*/_interopDefault(cssesc);
-var escapeStringRegexp__default = /*#__PURE__*/_interopDefault(escapeStringRegexp);
-var outdent__default = /*#__PURE__*/_interopDefault(outdent);
+import { getVarName } from '@vanilla-extract/private';
+import cssesc from 'cssesc';
+import escapeStringRegexp from 'escape-string-regexp';
+import { markCompositionUsed } from '../adapter/dist/vanilla-extract-css-adapter.browser.esm.js';
+import { _ as _taggedTemplateLiteral } from './taggedTemplateLiteral-2d2668f5.browser.esm.js';
+import { parse } from 'css-what';
+import outdent from 'outdent';
 
 function _defineProperty(obj, key, value) {
   if (key in obj) {
@@ -163,7 +155,7 @@ function escapeRegex(string) {
 
 var validateSelector = (selector, targetClassName) => {
   var replaceTarget = () => {
-    var targetRegex = new RegExp(".".concat(escapeRegex(cssesc__default["default"](targetClassName, {
+    var targetRegex = new RegExp(".".concat(escapeRegex(cssesc(targetClassName, {
       isIdentifier: true
     }))), 'g');
     return selector.replace(targetRegex, '&');
@@ -172,7 +164,7 @@ var validateSelector = (selector, targetClassName) => {
   var selectorParts;
 
   try {
-    selectorParts = cssWhat.parse(selector);
+    selectorParts = parse(selector);
   } catch (err) {
     throw new Error("Invalid selector: ".concat(replaceTarget()));
   }
@@ -195,7 +187,7 @@ var validateSelector = (selector, targetClassName) => {
         }
       }
     } catch (err) {
-      throw new Error(outdent__default["default"](_templateObject || (_templateObject = taggedTemplateLiteral._taggedTemplateLiteral(["\n        Invalid selector: ", "\n    \n        Style selectors must target the '&' character (along with any modifiers), e.g. ", " or ", ".\n        \n        This is to ensure that each style block only affects the styling of a single class.\n        \n        If your selector is targeting another class, you should move it to the style definition for that class, e.g. given we have styles for 'parent' and 'child' elements, instead of adding a selector of ", ") to 'parent', you should add ", " to 'child').\n        \n        If your selector is targeting something global, use the 'globalStyle' function instead, e.g. if you wanted to write ", ", you should instead write 'globalStyle(", ", { ... })'\n      "])), replaceTarget(), '`${parent} &`', '`${parent} &:hover`', '`& ${child}`', '`${parent} &`', '`& h1`', '`${parent} h1`'));
+      throw new Error(outdent(_templateObject || (_templateObject = _taggedTemplateLiteral(["\n        Invalid selector: ", "\n    \n        Style selectors must target the '&' character (along with any modifiers), e.g. ", " or ", ".\n        \n        This is to ensure that each style block only affects the styling of a single class.\n        \n        If your selector is targeting another class, you should move it to the style definition for that class, e.g. given we have styles for 'parent' and 'child' elements, instead of adding a selector of ", ") to 'parent', you should add ", " to 'child').\n        \n        If your selector is targeting something global, use the 'globalStyle' function instead, e.g. if you wanted to write ", ", you should instead write 'globalStyle(", ", { ... })'\n      "])), replaceTarget(), '`${parent} &`', '`${parent} &:hover`', '`& ${child}`', '`${parent} &`', '`& h1`', '`${parent} h1`'));
     }
   });
 };
@@ -563,7 +555,7 @@ class Stylesheet {
     this.conditionalRulesets = [new ConditionalRuleset()];
     this.fontFaceRules = [];
     this.keyframesRules = [];
-    this.localClassNameRegex = localClassNames.length > 0 ? RegExp("(".concat(localClassNames.map(escapeStringRegexp__default["default"]).join('|'), ")"), 'g') : null; // Class list compositions should be priortized by Newer > Older
+    this.localClassNameRegex = localClassNames.length > 0 ? RegExp("(".concat(localClassNames.map(escapeStringRegexp).join('|'), ")"), 'g') : null; // Class list compositions should be priortized by Newer > Older
     // Therefore we reverse the array as they are added in sequence
 
     this.composedClassLists = composedClassLists.map(_ref => {
@@ -655,7 +647,7 @@ class Stylesheet {
       return rest;
     }
 
-    return _objectSpread2(_objectSpread2({}, mapKeys(vars, (_value, key) => _private.getVarName(key))), rest);
+    return _objectSpread2(_objectSpread2({}, mapKeys(vars, (_value, key) => getVarName(key))), rest);
   }
 
   transformContent(_ref3) {
@@ -682,7 +674,7 @@ class Stylesheet {
 
     var _loop = function _loop(identifier, regex) {
       transformedSelector = transformedSelector.replace(regex, () => {
-        adapter_dist_vanillaExtractCssAdapter.markCompositionUsed(identifier);
+        markCompositionUsed(identifier);
         return identifier;
       });
     };
@@ -696,7 +688,9 @@ class Stylesheet {
 
 
     if (transformedSelector.startsWith('sprinkles_') || transformedSelector.startsWith('_')) {
-      transformedSelector = "".concat(transformedSelector, ".").concat(transformedSelector);
+      transformedSelector = "".concat(transformedSelector, ".").concat(cssesc(transformedSelector, {
+        isIdentifier: true
+      }));
     }
 
     return this.localClassNameRegex ? transformedSelector.replace(this.localClassNameRegex, (_, className, index) => {
@@ -704,7 +698,7 @@ class Stylesheet {
         return className;
       }
 
-      return ".".concat(cssesc__default["default"](className, {
+      return ".".concat(cssesc(className, {
         isIdentifier: true
       }));
     }) : transformedSelector;
@@ -890,6 +884,4 @@ function transformCss(_ref4) {
   return stylesheet.toCss();
 }
 
-exports._objectSpread2 = _objectSpread2;
-exports.dudupeAndJoinClassList = dudupeAndJoinClassList;
-exports.transformCss = transformCss;
+export { _objectSpread2 as _, dudupeAndJoinClassList as d, transformCss as t };

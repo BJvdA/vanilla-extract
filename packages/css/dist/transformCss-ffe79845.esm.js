@@ -688,7 +688,9 @@ class Stylesheet {
 
 
     if (transformedSelector.startsWith('sprinkles_') || transformedSelector.startsWith('_')) {
-      transformedSelector = "".concat(transformedSelector, ".").concat(transformedSelector);
+      transformedSelector = "".concat(transformedSelector, ".").concat(cssesc(transformedSelector, {
+        isIdentifier: true
+      }));
     }
 
     return this.localClassNameRegex ? transformedSelector.replace(this.localClassNameRegex, (_, className, index) => {

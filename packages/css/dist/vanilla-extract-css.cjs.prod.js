@@ -3,7 +3,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var injectStyles_dist_vanillaExtractCssInjectStyles = require('../injectStyles/dist/vanilla-extract-css-injectStyles.cjs.prod.js');
-var transformCss_dist_vanillaExtractCssTransformCss = require('./transformCss-67928607.cjs.prod.js');
+var transformCss_dist_vanillaExtractCssTransformCss = require('./transformCss-29ddeee6.cjs.prod.js');
 var adapter_dist_vanillaExtractCssAdapter = require('../adapter/dist/vanilla-extract-css-adapter.cjs.prod.js');
 var hash = require('@emotion/hash');
 var fileScope_dist_vanillaExtractCssFileScope = require('../fileScope/dist/vanilla-extract-css-fileScope.cjs.prod.js');
@@ -344,8 +344,8 @@ function createTheme(arg1, arg2, arg3) {
 
 var _templateObject;
 
-function composedStyle(rules, debugId, forceId) {
-  var className = forceId || generateIdentifier(debugId);
+function composedStyle(rules, debugId) {
+  var className = generateIdentifier(debugId);
   adapter_dist_vanillaExtractCssAdapter.registerClassName(className);
   var classList = [];
   var styleRules = [];
@@ -390,12 +390,12 @@ function composedStyle(rules, debugId, forceId) {
   return result;
 }
 
-function style(rule, debugId, forceId) {
+function style(rule, debugId) {
   if (Array.isArray(rule)) {
-    return composedStyle(rule, debugId, forceId);
+    return composedStyle(rule, debugId);
   }
 
-  var className = forceId || generateIdentifier(debugId);
+  var className = generateIdentifier(debugId);
   adapter_dist_vanillaExtractCssAdapter.registerClassName(className);
   adapter_dist_vanillaExtractCssAdapter.appendCss({
     type: 'local',

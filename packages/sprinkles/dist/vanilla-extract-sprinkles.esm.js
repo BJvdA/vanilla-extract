@@ -1,7 +1,7 @@
 import { composeStyles, style } from '@vanilla-extract/css';
 import { addRecipe } from '@vanilla-extract/css/recipe';
 import { hasFileScope } from '@vanilla-extract/css/fileScope';
-import { c as createSprinkles$1 } from './createSprinkles-3a11d650.esm.js';
+import { c as createSprinkles$1 } from './createSprinkles-3481a460.esm.js';
 export { createMapValueFn, createNormalizeValueFn } from '../createUtils/dist/vanilla-extract-sprinkles-createUtils.esm.js';
 
 function defineProperties(options) {
@@ -14,15 +14,19 @@ function defineProperties(options) {
 
   var _loop = function _loop(key) {
     var property = options.properties[key];
-    styles[key] = 1; // if ('responsiveArray' in options) {
-    //   styles[key].responsiveArray = options.responsiveArray;
-    // }
+    styles[key] = {
+      values: {}
+    };
+
+    if ('responsiveArray' in options) {
+      styles[key].responsiveArray = options.responsiveArray;
+    }
 
     var processValue = (valueName, value) => {
       if ('conditions' in options) {
-        // styles[key].values[valueName] = {
-        //   conditions: {},
-        // };
+        styles[key].values[valueName] = {
+          conditions: {}
+        };
         var defaultConditions = options.defaultCondition ? Array.isArray(options.defaultCondition) ? options.defaultCondition : [options.defaultCondition] : [];
         var defaultClasses = [];
 
@@ -56,34 +60,25 @@ function defineProperties(options) {
             };
           }
 
-          var className = style(styleValue, undefined, "".concat(key, "_").concat(String(valueName), "_").concat(_conditionName)); // styles[key].values[valueName].conditions[conditionName] = className;
+          var className = style(styleValue, "".concat(key, "_").concat(String(valueName), "_").concat(_conditionName));
+          styles[key].values[valueName].conditions[_conditionName] = className;
 
           if (defaultConditions.indexOf(_conditionName) > -1) {
             defaultClasses.push(className);
           }
         }
 
-        if (defaultClasses.length > 0) ;
+        if (defaultClasses.length > 0) {
+          styles[key].values[valueName].defaultClass = defaultClasses.join(' ');
+        }
       } else {
         var _styleValue = typeof value === 'object' ? value : {
           [key]: value
         };
 
-        var defaultClass = style(_styleValue, "".concat(key, "_").concat(String(valueName)));
-
-        if (styles[key] === 1) {
-          styles[key] = {
-            values: {
-              [valueName]: {
-                defaultClass
-              }
-            }
-          };
-        } else {
-          styles[key].values[valueName] = {
-            defaultClass
-          };
-        }
+        styles[key].values[valueName] = {
+          defaultClass: style(_styleValue, "".concat(key, "_").concat(String(valueName)))
+        };
       }
     };
 

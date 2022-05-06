@@ -1,5 +1,5 @@
 import { injectStyles } from '../injectStyles/dist/vanilla-extract-css-injectStyles.esm.js';
-import { t as transformCss, _ as _objectSpread2, d as dudupeAndJoinClassList } from './transformCss-bf886ff5.esm.js';
+import { t as transformCss, _ as _objectSpread2, d as dudupeAndJoinClassList } from './transformCss-ffe79845.esm.js';
 import { setAdapterIfNotSet, getIdentOption, appendCss, registerClassName, registerComposition, markCompositionUsed } from '../adapter/dist/vanilla-extract-css-adapter.esm.js';
 import hash from '@emotion/hash';
 import { getAndIncrementRefCounter, getFileScope, hasFileScope } from '../fileScope/dist/vanilla-extract-css-fileScope.esm.js';
@@ -332,8 +332,8 @@ function createTheme(arg1, arg2, arg3) {
 
 var _templateObject;
 
-function composedStyle(rules, debugId, forceId) {
-  var className = forceId || generateIdentifier(debugId);
+function composedStyle(rules, debugId) {
+  var className = generateIdentifier(debugId);
   registerClassName(className);
   var classList = [];
   var styleRules = [];
@@ -378,12 +378,12 @@ function composedStyle(rules, debugId, forceId) {
   return result;
 }
 
-function style(rule, debugId, forceId) {
+function style(rule, debugId) {
   if (Array.isArray(rule)) {
-    return composedStyle(rule, debugId, forceId);
+    return composedStyle(rule, debugId);
   }
 
-  var className = forceId || generateIdentifier(debugId);
+  var className = generateIdentifier(debugId);
   registerClassName(className);
   appendCss({
     type: 'local',
