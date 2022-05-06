@@ -220,20 +220,22 @@ export function defineProperties(options: any): any {
 
   for (const key in options.properties) {
     const property = options.properties[key as keyof typeof options.properties];
-    styles[key] = 1;
+    styles[key] = {
+      values: {},
+    };
 
-    // if ('responsiveArray' in options) {
-    //   styles[key].responsiveArray = options.responsiveArray;
-    // }
+    if ('responsiveArray' in options) {
+      styles[key].responsiveArray = options.responsiveArray;
+    }
 
     const processValue = (
       valueName: keyof typeof property,
       value: string | number | StyleRule,
     ) => {
       if ('conditions' in options) {
-        // styles[key].values[valueName] = {
-        //   conditions: {},
-        // };
+        styles[key].values[valueName] = {
+          conditions: {},
+        };
 
         const defaultConditions = options.defaultCondition
           ? Array.isArray(options.defaultCondition)
@@ -278,11 +280,10 @@ export function defineProperties(options: any): any {
 
           const className = style(
             styleValue,
-            undefined,
             `${key}_${String(valueName)}_${conditionName}`,
           );
 
-          // styles[key].values[valueName].conditions[conditionName] = className;
+          styles[key].values[valueName].conditions[conditionName] = className;
 
           if (defaultConditions.indexOf(conditionName) > -1) {
             defaultClasses.push(className);
@@ -290,27 +291,15 @@ export function defineProperties(options: any): any {
         }
 
         if (defaultClasses.length > 0) {
-          // styles[key].values[valueName].defaultClass = defaultClasses.join(' ');
+          styles[key].values[valueName].defaultClass = defaultClasses.join(' ');
         }
       } else {
         const styleValue: StyleRule =
           typeof value === 'object' ? value : { [key]: value };
 
-        const defaultClass = style(styleValue, `${key}_${String(valueName)}`);
-
-        if (styles[key] === 1) {
-          styles[key] = {
-            values: {
-              [valueName]: {
-                defaultClass,
-              },
-            },
-          };
-        } else {
-          styles[key].values[valueName] = {
-            defaultClass,
-          };
-        }
+        styles[key].values[valueName] = {
+          defaultClass: style(styleValue, `${key}_${String(valueName)}`),
+        };
       }
     };
 
