@@ -1,11 +1,7 @@
-import type { PackageInfo } from './packageInfo';
 interface AddFileScopeParams {
     source: string;
     filePath: string;
-    packageInfo: PackageInfo;
+    rootPath: string;
 }
-export declare function addFileScope({ source, filePath, packageInfo, }: AddFileScopeParams): {
-    source: string;
-    updated: boolean;
-};
+export declare function addFileScope({ source, filePath, rootPath, }: AddFileScopeParams): string;
 export {};

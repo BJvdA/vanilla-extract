@@ -9,7 +9,6 @@ interface ProcessVanillaFileOptions {
     identOption?: IdentifierOption;
     serializeVirtualCssPath?: (file: {
         fileName: string;
-        base64Source: string;
         fileScope: FileScope;
         source: string;
     }) => string | Promise<string>;

@@ -2,6 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+var path = require('path');
 var integration = require('@vanilla-extract/integration');
 
 const vanillaCssNamespace = 'vanilla-extract-css-ns';
@@ -33,19 +34,25 @@ function vanillaExtractPlugin({
         filter: /.*/,
         namespace: vanillaCssNamespace
       }, async ({
-        path
+        path: path$1
       }) => {
+        var _build$initialOptions;
+
         let {
-          source
-        } = integration.getSourceFromVirtualCssFile(path);
+          source,
+          fileName
+        } = await integration.getSourceFromVirtualCssFile(path$1);
 
         if (typeof processCss === 'function') {
           source = await processCss(source);
         }
 
+        const rootDir = (_build$initialOptions = build.initialOptions.absWorkingDir) !== null && _build$initialOptions !== void 0 ? _build$initialOptions : process.cwd();
+        const resolveDir = path.dirname(path.join(rootDir, fileName));
         return {
           contents: source,
-          loader: 'css'
+          loader: 'css',
+          resolveDir
         };
       });
       build.onLoad({

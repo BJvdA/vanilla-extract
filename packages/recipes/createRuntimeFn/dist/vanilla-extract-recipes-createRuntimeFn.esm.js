@@ -144,8 +144,12 @@ var createRuntimeFn = config => options => {
         }
       }
 
-      className += ' ' + ( // @ts-expect-error
-      (_config$variantClassN = (_config$variantClassN2 = config.variantClassNames[variantName][selection]) === null || _config$variantClassN2 === void 0 ? void 0 : _config$variantClassN2.defaultClass) !== null && _config$variantClassN !== void 0 ? _config$variantClassN : config.variantClassNames[variantName][selection]);
+      var selectionClassName = // @ts-expect-error
+      (_config$variantClassN = (_config$variantClassN2 = config.variantClassNames[variantName][selection]) === null || _config$variantClassN2 === void 0 ? void 0 : _config$variantClassN2.defaultClass) !== null && _config$variantClassN !== void 0 ? _config$variantClassN : config.variantClassNames[variantName][selection];
+
+      if (selectionClassName) {
+        className += ' ' + selectionClassName;
+      }
     }
   }
 

@@ -8,6 +8,8 @@ var javascriptStringify = require('javascript-stringify');
 var isPlainObject = require('lodash/isPlainObject');
 var outdent = require('outdent');
 var crypto = require('crypto');
+var zlib = require('zlib');
+var util = require('util');
 var path = require('path');
 var findUp = require('find-up');
 var fs = require('fs');
@@ -23,6 +25,28 @@ var path__default = /*#__PURE__*/_interopDefault(path);
 var findUp__default = /*#__PURE__*/_interopDefault(findUp);
 
 const hash = value => crypto__default["default"].createHash('md5').update(value).digest('hex');
+
+const zip = util.promisify(zlib.gzip);
+const unzip = util.promisify(zlib.gunzip); // The byte threshold for applying compression, below which compressing would out-weigh its value.
+
+const compressionThreshold = 1000;
+const compressionFlag = '#';
+async function serializeCss(source) {
+  if (source.length > compressionThreshold) {
+    const compressedSource = await zip(source);
+    return compressionFlag + compressedSource.toString('base64');
+  }
+
+  return Buffer.from(source, 'utf-8').toString('base64');
+}
+async function deserializeCss(source) {
+  if (source.indexOf(compressionFlag) > -1) {
+    const decompressedSource = await unzip(Buffer.from(source.replace(compressionFlag, ''), 'base64'));
+    return decompressedSource.toString('utf-8');
+  }
+
+  return Buffer.from(source, 'base64').toString('utf-8');
+}
 
 const originalNodeEnv =         "production";
 function stringifyFileScope({
@@ -96,14 +120,12 @@ async function processVanillaFile({
       composedClassLists,
       cssObjs: fileScopeCss
     }).join('\n');
-    const base64Source = Buffer.from(css, 'utf-8').toString('base64');
     const fileName = `${fileScope.packageName ? `${fileScope.packageName}/${fileScope.filePath}` : fileScope.filePath}.vanilla.css`;
     let virtualCssFilePath;
 
     if (serializeVirtualCssPath) {
       const serializedResult = serializeVirtualCssPath({
         fileName,
-        base64Source,
         fileScope,
         source: css
       });
@@ -114,7 +136,8 @@ async function processVanillaFile({
         virtualCssFilePath = await serializedResult;
       }
     } else {
-      virtualCssFilePath = `import '${fileName}?source=${base64Source}';`;
+      const serializedCss = await serializeCss(css);
+      virtualCssFilePath = `import '${fileName}?source=${serializedCss}';`;
     }
 
     cssImports.push(virtualCssFilePath);
@@ -193,7 +216,7 @@ function serializeVanillaModule(cssImports, exports, unusedCompositionRegex) {
   return outputCode.join('\n');
 }
 
-function getSourceFromVirtualCssFile(id) {
+async function getSourceFromVirtualCssFile(id) {
   var _id$match;
 
   const match = (_id$match = id.match(/^(?<fileName>.*)\?source=(?<source>.*)$/)) !== null && _id$match !== void 0 ? _id$match : [];
@@ -202,9 +225,10 @@ function getSourceFromVirtualCssFile(id) {
     throw new Error('No source in vanilla CSS file');
   }
 
+  const source = await deserializeCss(match.groups.source);
   return {
     fileName: match.groups.fileName,
-    source: Buffer.from(match.groups.source, 'base64').toString('utf-8')
+    source
   };
 }
 
@@ -257,57 +281,43 @@ const virtualCssFileFilter = /\.vanilla\.css\?source=.*$/;
 function addFileScope({
   source,
   filePath,
-  packageInfo
+  rootPath
 }) {
+  // Encode windows file paths as posix
+  const normalizedPath = path.posix.join(...path.relative(rootPath, filePath).split(path.sep));
+
   if (source.indexOf('@vanilla-extract/css/fileScope') > -1) {
-    return {
-      source,
-      updated: false
-    };
-  } // Encode windows file paths as posix
+    return source.replace(/setFileScope\(((\n|.)*?)\)/, `setFileScope("${normalizedPath}")`);
+  }
 
-
-  const normalizedPath = path.posix.join(...path.relative(packageInfo.dirname, filePath).split(path.sep));
-  const packageName = packageInfo.name ? `"${packageInfo.name}"` : 'undefined';
-  const contents = `
+  return `
     import { setFileScope, endFileScope } from "@vanilla-extract/css/fileScope";
-    setFileScope("${normalizedPath}", ${packageName});
+    setFileScope("${normalizedPath}");
     ${source}
     endFileScope();
   `;
-  return {
-    source: contents,
-    updated: true
-  };
 }
 
 const vanillaExtractFilescopePlugin = () => ({
   name: 'vanilla-extract-filescope',
 
   setup(build) {
-    const packageInfo = getPackageInfo(build.initialOptions.absWorkingDir);
     build.onLoad({
       filter: cssFileFilter
     }, async ({
       path: path$1
     }) => {
       const originalSource = await fs.promises.readFile(path$1, 'utf-8');
-      const {
-        source,
-        updated
-      } = addFileScope({
+      const source = addFileScope({
         source: originalSource,
         filePath: path$1,
-        packageInfo
+        rootPath: build.initialOptions.absWorkingDir
       });
-
-      if (updated) {
-        return {
-          contents: source,
-          loader: path$1.match(/\.(ts|tsx)$/i) ? 'ts' : undefined,
-          resolveDir: path.dirname(path$1)
-        };
-      }
+      return {
+        contents: source,
+        loader: path$1.match(/\.(ts|tsx)$/i) ? 'ts' : undefined,
+        resolveDir: path.dirname(path$1)
+      };
     });
   }
 
@@ -345,11 +355,13 @@ async function compile({
 exports.addFileScope = addFileScope;
 exports.compile = compile;
 exports.cssFileFilter = cssFileFilter;
+exports.deserializeCss = deserializeCss;
 exports.getPackageInfo = getPackageInfo;
 exports.getSourceFromVirtualCssFile = getSourceFromVirtualCssFile;
 exports.hash = hash;
 exports.parseFileScope = parseFileScope;
 exports.processVanillaFile = processVanillaFile;
+exports.serializeCss = serializeCss;
 exports.stringifyFileScope = stringifyFileScope;
 exports.vanillaExtractFilescopePlugin = vanillaExtractFilescopePlugin;
 exports.virtualCssFileFilter = virtualCssFileFilter;

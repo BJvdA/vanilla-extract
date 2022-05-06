@@ -1,4 +1,4 @@
-import { getPackageInfo, cssFileFilter } from '@vanilla-extract/integration';
+import { cssFileFilter } from '@vanilla-extract/integration';
 
 const webpack4 = {
   isWebpack5: false,
@@ -230,8 +230,7 @@ class VanillaExtractPlugin {
         options: {
           outputCss: this.outputCss,
           childCompiler: this.childCompiler,
-          identifiers: this.identifiers,
-          packageInfo: getPackageInfo(compiler.context)
+          identifiers: this.identifiers
         }
       }]
     });

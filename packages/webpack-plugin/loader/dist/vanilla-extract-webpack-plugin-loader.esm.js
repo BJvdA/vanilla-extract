@@ -1,6 +1,6 @@
 import path from 'path';
 import loaderUtils from 'loader-utils';
-import { addFileScope, processVanillaFile } from '@vanilla-extract/integration';
+import { addFileScope, processVanillaFile, serializeCss } from '@vanilla-extract/integration';
 import createDebug from 'debug';
 import chalk from 'chalk';
 
@@ -10,18 +10,17 @@ createDebug.formatters.r = r => formatResourcePath(r);
 
 const debug = createDebug;
 
+const virtualLoader = require.resolve(path.join(path.dirname(require.resolve('../../package.json')), 'virtualFileLoader'));
+
 const emptyCssExtractionFile = require.resolve(path.join(path.dirname(require.resolve('../../package.json')), 'extracted'));
 
 function loader (source) {
   this.cacheable(true);
-  const {
-    packageInfo
-  } = loaderUtils.getOptions(this);
   return addFileScope({
     source,
     filePath: this.resourcePath,
-    packageInfo
-  }).source;
+    rootPath: this.rootContext
+  });
 }
 function pitch() {
   this.cacheable(true);
@@ -49,12 +48,14 @@ function pitch() {
       outputCss,
       filePath: this.resourcePath,
       identOption: identifiers !== null && identifiers !== void 0 ? identifiers : this.mode === 'production' ? 'short' : 'debug',
-      serializeVirtualCssPath: ({
+      serializeVirtualCssPath: async ({
         fileName,
-        base64Source
+        source
       }) => {
-        const virtualResourceLoader = `${require.resolve('virtual-resource-loader')}?${JSON.stringify({
-          source: base64Source
+        const serializedCss = await serializeCss(source);
+        const virtualResourceLoader = `${virtualLoader}?${JSON.stringify({
+          fileName: fileName,
+          source: serializedCss
         })}`;
         const request = loaderUtils.stringifyRequest(this, `${fileName}!=!${virtualResourceLoader}!${emptyCssExtractionFile}`);
         return `import ${request}`;

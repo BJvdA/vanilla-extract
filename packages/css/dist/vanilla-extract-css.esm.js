@@ -1,5 +1,5 @@
 import { injectStyles } from '../injectStyles/dist/vanilla-extract-css-injectStyles.esm.js';
-import { t as transformCss, _ as _objectSpread2, d as dudupeAndJoinClassList } from './transformCss-ffe79845.esm.js';
+import { t as transformCss, _ as _objectSpread2, d as dudupeAndJoinClassList } from './transformCss-bb45c9e4.esm.js';
 import { setAdapterIfNotSet, getIdentOption, appendCss, registerClassName, registerComposition, markCompositionUsed } from '../adapter/dist/vanilla-extract-css-adapter.esm.js';
 import hash from '@emotion/hash';
 import { getAndIncrementRefCounter, getFileScope, hasFileScope } from '../fileScope/dist/vanilla-extract-css-fileScope.esm.js';
@@ -12,6 +12,7 @@ import outdent from 'outdent';
 import deepmerge from 'deepmerge';
 import 'escape-string-regexp';
 import 'css-what';
+import 'css-mediaquery';
 
 var localClassNames = new Set();
 var composedClassLists = [];
@@ -353,13 +354,12 @@ function composedStyle(rules, debugId) {
     registerComposition({
       identifier: className,
       classList: result
-    });
+    }); // Always mark as used
+    // if (styleRules.length > 0) {
+    // If there are styles attached to this composition then it is
+    // always used and should never be removed
 
-    if (styleRules.length > 0) {
-      // If there are styles attached to this composition then it is
-      // always used and should never be removed
-      markCompositionUsed(className);
-    }
+    markCompositionUsed(className); // }
   }
 
   if (styleRules.length > 0) {

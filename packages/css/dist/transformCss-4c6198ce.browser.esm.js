@@ -5,6 +5,7 @@ import { markCompositionUsed } from '../adapter/dist/vanilla-extract-css-adapter
 import { _ as _taggedTemplateLiteral } from './taggedTemplateLiteral-2d2668f5.browser.esm.js';
 import { parse } from 'css-what';
 import outdent from 'outdent';
+import { parse as parse$1 } from 'css-mediaquery';
 
 function _defineProperty(obj, key, value) {
   if (key in obj) {
@@ -147,7 +148,7 @@ function dudupeAndJoinClassList(classNames) {
   return Array.from(set).join(' ');
 }
 
-var _templateObject;
+var _templateObject$1;
 
 function escapeRegex(string) {
   return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
@@ -187,7 +188,7 @@ var validateSelector = (selector, targetClassName) => {
         }
       }
     } catch (err) {
-      throw new Error(outdent(_templateObject || (_templateObject = _taggedTemplateLiteral(["\n        Invalid selector: ", "\n    \n        Style selectors must target the '&' character (along with any modifiers), e.g. ", " or ", ".\n        \n        This is to ensure that each style block only affects the styling of a single class.\n        \n        If your selector is targeting another class, you should move it to the style definition for that class, e.g. given we have styles for 'parent' and 'child' elements, instead of adding a selector of ", ") to 'parent', you should add ", " to 'child').\n        \n        If your selector is targeting something global, use the 'globalStyle' function instead, e.g. if you wanted to write ", ", you should instead write 'globalStyle(", ", { ... })'\n      "])), replaceTarget(), '`${parent} &`', '`${parent} &:hover`', '`& ${child}`', '`${parent} &`', '`& h1`', '`${parent} h1`'));
+      throw new Error(outdent(_templateObject$1 || (_templateObject$1 = _taggedTemplateLiteral(["\n        Invalid selector: ", "\n    \n        Style selectors must target the '&' character (along with any modifiers), e.g. ", " or ", ".\n        \n        This is to ensure that each style block only affects the styling of a single class.\n        \n        If your selector is targeting another class, you should move it to the style definition for that class, e.g. given we have styles for 'parent' and 'child' elements, instead of adding a selector of ", ") to 'parent', you should add ", " to 'child').\n        \n        If your selector is targeting something global, use the 'globalStyle' function instead, e.g. if you wanted to write ", ", you should instead write 'globalStyle(", ", { ... })'\n      "])), replaceTarget(), '`${parent} &`', '`${parent} &:hover`', '`& ${child}`', '`${parent} &`', '`& h1`', '`${parent} h1`'));
     }
   });
 };
@@ -492,6 +493,24 @@ var simplePseudoMap = {
 var simplePseudos = Object.keys(simplePseudoMap);
 var simplePseudoLookup = simplePseudoMap;
 
+var _templateObject;
+var mediaTypes = ['all', 'print', 'screen'];
+var validateMediaQuery = mediaQuery => {
+  var _parse;
+
+  var {
+    type,
+    expressions
+  } = (_parse = parse$1(mediaQuery)) === null || _parse === void 0 ? void 0 : _parse[0];
+  var isAllQuery = mediaQuery === 'all';
+  var isValidType = mediaTypes.includes(type); // If the parser returns all for the type, we should have expressions
+  // or the query should match 'all' otherwise it is invalid
+
+  if (!isValidType || !isAllQuery && type === 'all' && !expressions.length) {
+    throw new Error(outdent(_templateObject || (_templateObject = _taggedTemplateLiteral(["\n      Invalid media query: ", "\n\n      A media query can contain an optional media type and any number of media feature expressions.\n  \n      Read more on MDN: https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries\n    "])), mediaQuery));
+  }
+};
+
 var _excluded = ["vars"],
     _excluded2 = ["content"];
 var UNITLESS = {
@@ -741,6 +760,7 @@ class Stylesheet {
 
       (_this$currConditional = this.currConditionalRuleset) === null || _this$currConditional === void 0 ? void 0 : _this$currConditional.addConditionPrecedence(parentConditions, Object.keys(rules).map(query => "@media ".concat(query)));
       forEach(rules, (mediaRule, query) => {
+        validateMediaQuery(query);
         var conditions = [...parentConditions, "@media ".concat(query)];
         this.addConditionalRule({
           selector: root.selector,

@@ -14,7 +14,7 @@ function createNormalizeValueFn(properties) {
   }
 
   function normalizeValue(value) {
-    if (typeof value === 'string' || typeof value === 'number') {
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
       if (!conditions.defaultCondition) {
         throw new Error('No default condition');
       }
@@ -63,7 +63,7 @@ function createMapValueFn(properties) {
   var normalizeValue = createNormalizeValueFn(properties);
 
   function mapValue(value, mapFn) {
-    if (typeof value === 'string' || typeof value === 'number') {
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
       if (!conditions.defaultCondition) {
         throw new Error('No default condition');
       }

@@ -21,18 +21,17 @@ createDebug__default["default"].formatters.r = r => formatResourcePath(r);
 
 const debug = createDebug__default["default"];
 
+const virtualLoader = require.resolve(path__default["default"].join(path__default["default"].dirname(require.resolve('../../package.json')), 'virtualFileLoader'));
+
 const emptyCssExtractionFile = require.resolve(path__default["default"].join(path__default["default"].dirname(require.resolve('../../package.json')), 'extracted'));
 
 function loader (source) {
   this.cacheable(true);
-  const {
-    packageInfo
-  } = loaderUtils__default["default"].getOptions(this);
   return integration.addFileScope({
     source,
     filePath: this.resourcePath,
-    packageInfo
-  }).source;
+    rootPath: this.rootContext
+  });
 }
 function pitch() {
   this.cacheable(true);
@@ -60,12 +59,14 @@ function pitch() {
       outputCss,
       filePath: this.resourcePath,
       identOption: identifiers !== null && identifiers !== void 0 ? identifiers : this.mode === 'production' ? 'short' : 'debug',
-      serializeVirtualCssPath: ({
+      serializeVirtualCssPath: async ({
         fileName,
-        base64Source
+        source
       }) => {
-        const virtualResourceLoader = `${require.resolve('virtual-resource-loader')}?${JSON.stringify({
-          source: base64Source
+        const serializedCss = await integration.serializeCss(source);
+        const virtualResourceLoader = `${virtualLoader}?${JSON.stringify({
+          fileName: fileName,
+          source: serializedCss
         })}`;
         const request = loaderUtils__default["default"].stringifyRequest(this, `${fileName}!=!${virtualResourceLoader}!${emptyCssExtractionFile}`);
         return `import ${request}`;

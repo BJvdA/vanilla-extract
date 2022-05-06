@@ -68,12 +68,10 @@ const resolvePostcssConfig = async config => {
 
 const styleUpdateEvent = fileId => `vanilla-extract-style-update:${fileId}`;
 
-const virtualPrefix = 'virtual:vanilla-extract:';
 function vanillaExtractPlugin({
   identifiers
 } = {}) {
   let config;
-  let packageInfo;
   let server;
   let postCssConfig;
   const cssMap = new Map();
@@ -106,47 +104,52 @@ function vanillaExtractPlugin({
       }
 
       virtualExt = `.vanilla.${config.command === 'serve' ? 'js' : 'css'}`;
-      packageInfo = integration.getPackageInfo(config.root);
     },
 
     resolveId(id) {
-      if (id.indexOf(virtualPrefix) === 0) {
-        return id;
+      if (!id.endsWith(virtualExt)) {
+        return;
+      }
+
+      const normalizedId = id.startsWith('/') ? id.slice(1) : id;
+
+      if (cssMap.has(normalizedId)) {
+        return vite.normalizePath(path__default["default"].join(config.root, normalizedId));
       }
     },
 
     load(id) {
-      if (id.indexOf(virtualPrefix) === 0) {
-        const fileScopeId = id.slice(virtualPrefix.length, id.indexOf(virtualExt));
-
-        if (!cssMap.has(fileScopeId)) {
-          throw new Error(`Unable to locate ${fileScopeId} in the CSS map.`);
-        }
-
-        const css = cssMap.get(fileScopeId);
-
-        if (!server) {
-          return css;
-        }
-
-        const fileScope = integration.parseFileScope(fileScopeId);
-        return outdent__default["default"]`
-          import { injectStyles } from '@vanilla-extract/css/injectStyles';
-          
-          const inject = (css) => injectStyles({
-            fileScope: ${JSON.stringify(fileScope)},
-            css
-          });
-
-          inject(${JSON.stringify(css)});
-
-          import.meta.hot.on('${styleUpdateEvent(fileScopeId)}', (css) => {
-            inject(css);
-          });   
-        `;
+      if (!id.endsWith(virtualExt)) {
+        return;
       }
 
-      return null;
+      const cssFileId = id.slice(config.root.length + 1);
+      const css = cssMap.get(cssFileId);
+
+      if (typeof css !== 'string') {
+        return;
+      }
+
+      if (!server) {
+        return css;
+      }
+
+      return outdent__default["default"]`
+        import { injectStyles } from '@vanilla-extract/css/injectStyles';
+        
+        const inject = (css) => injectStyles({
+          fileScope: ${JSON.stringify({
+        filePath: cssFileId
+      })},
+          css
+        });
+
+        inject(${JSON.stringify(css)});
+
+        import.meta.hot.on('${styleUpdateEvent(cssFileId)}', (css) => {
+          inject(css);
+        });   
+      `;
     },
 
     async transform(code, id, ssrParam) {
@@ -168,9 +171,9 @@ function vanillaExtractPlugin({
       if (ssr) {
         return integration.addFileScope({
           source: code,
-          filePath: vite.normalizePath(path__default["default"].relative(packageInfo.dirname, validId)),
-          packageInfo
-        }).source;
+          filePath: vite.normalizePath(validId),
+          rootPath: config.root
+        });
       }
 
       const {
@@ -197,8 +200,7 @@ function vanillaExtractPlugin({
           fileScope,
           source
         }) => {
-          const fileId = integration.stringifyFileScope(fileScope);
-          const id = `${virtualPrefix}${fileId}${virtualExt}`;
+          const id = `${fileScope.filePath}${virtualExt}`;
           let cssSource = source;
 
           if (postCssConfig) {
@@ -209,7 +211,7 @@ function vanillaExtractPlugin({
             cssSource = postCssResult.css;
           }
 
-          if (server && cssMap.has(fileId) && cssMap.get(fileId) !== source) {
+          if (server && cssMap.has(id) && cssMap.get(id) !== source) {
             const {
               moduleGraph
             } = server;
@@ -221,12 +223,12 @@ function vanillaExtractPlugin({
 
             server.ws.send({
               type: 'custom',
-              event: styleUpdateEvent(fileId),
+              event: styleUpdateEvent(id),
               data: cssSource
             });
           }
 
-          cssMap.set(fileId, cssSource);
+          cssMap.set(id, cssSource);
           return `import "${id}";`;
         }
       });

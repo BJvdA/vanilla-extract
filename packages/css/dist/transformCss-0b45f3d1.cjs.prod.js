@@ -3,10 +3,11 @@
 var _private = require('@vanilla-extract/private');
 var cssesc = require('cssesc');
 var escapeStringRegexp = require('escape-string-regexp');
-var adapter_dist_vanillaExtractCssAdapter = require('../adapter/dist/vanilla-extract-css-adapter.cjs.dev.js');
-var taggedTemplateLiteral = require('./taggedTemplateLiteral-975613a0.cjs.dev.js');
+var adapter_dist_vanillaExtractCssAdapter = require('../adapter/dist/vanilla-extract-css-adapter.cjs.prod.js');
+var taggedTemplateLiteral = require('./taggedTemplateLiteral-bd61be83.cjs.prod.js');
 var cssWhat = require('css-what');
 var outdent = require('outdent');
+var cssMediaquery = require('css-mediaquery');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { 'default': e }; }
 
@@ -155,7 +156,7 @@ function dudupeAndJoinClassList(classNames) {
   return Array.from(set).join(' ');
 }
 
-var _templateObject;
+var _templateObject$1;
 
 function escapeRegex(string) {
   return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
@@ -195,7 +196,7 @@ var validateSelector = (selector, targetClassName) => {
         }
       }
     } catch (err) {
-      throw new Error(outdent__default["default"](_templateObject || (_templateObject = taggedTemplateLiteral._taggedTemplateLiteral(["\n        Invalid selector: ", "\n    \n        Style selectors must target the '&' character (along with any modifiers), e.g. ", " or ", ".\n        \n        This is to ensure that each style block only affects the styling of a single class.\n        \n        If your selector is targeting another class, you should move it to the style definition for that class, e.g. given we have styles for 'parent' and 'child' elements, instead of adding a selector of ", ") to 'parent', you should add ", " to 'child').\n        \n        If your selector is targeting something global, use the 'globalStyle' function instead, e.g. if you wanted to write ", ", you should instead write 'globalStyle(", ", { ... })'\n      "])), replaceTarget(), '`${parent} &`', '`${parent} &:hover`', '`& ${child}`', '`${parent} &`', '`& h1`', '`${parent} h1`'));
+      throw new Error(outdent__default["default"](_templateObject$1 || (_templateObject$1 = taggedTemplateLiteral._taggedTemplateLiteral(["\n        Invalid selector: ", "\n    \n        Style selectors must target the '&' character (along with any modifiers), e.g. ", " or ", ".\n        \n        This is to ensure that each style block only affects the styling of a single class.\n        \n        If your selector is targeting another class, you should move it to the style definition for that class, e.g. given we have styles for 'parent' and 'child' elements, instead of adding a selector of ", ") to 'parent', you should add ", " to 'child').\n        \n        If your selector is targeting something global, use the 'globalStyle' function instead, e.g. if you wanted to write ", ", you should instead write 'globalStyle(", ", { ... })'\n      "])), replaceTarget(), '`${parent} &`', '`${parent} &:hover`', '`& ${child}`', '`${parent} &`', '`& h1`', '`${parent} h1`'));
     }
   });
 };
@@ -500,6 +501,24 @@ var simplePseudoMap = {
 var simplePseudos = Object.keys(simplePseudoMap);
 var simplePseudoLookup = simplePseudoMap;
 
+var _templateObject;
+var mediaTypes = ['all', 'print', 'screen'];
+var validateMediaQuery = mediaQuery => {
+  var _parse;
+
+  var {
+    type,
+    expressions
+  } = (_parse = cssMediaquery.parse(mediaQuery)) === null || _parse === void 0 ? void 0 : _parse[0];
+  var isAllQuery = mediaQuery === 'all';
+  var isValidType = mediaTypes.includes(type); // If the parser returns all for the type, we should have expressions
+  // or the query should match 'all' otherwise it is invalid
+
+  if (!isValidType || !isAllQuery && type === 'all' && !expressions.length) {
+    throw new Error(outdent__default["default"](_templateObject || (_templateObject = taggedTemplateLiteral._taggedTemplateLiteral(["\n      Invalid media query: ", "\n\n      A media query can contain an optional media type and any number of media feature expressions.\n  \n      Read more on MDN: https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries\n    "])), mediaQuery));
+  }
+};
+
 var _excluded = ["vars"],
     _excluded2 = ["content"];
 var UNITLESS = {
@@ -749,6 +768,7 @@ class Stylesheet {
 
       (_this$currConditional = this.currConditionalRuleset) === null || _this$currConditional === void 0 ? void 0 : _this$currConditional.addConditionPrecedence(parentConditions, Object.keys(rules).map(query => "@media ".concat(query)));
       forEach(rules, (mediaRule, query) => {
+        validateMediaQuery(query);
         var conditions = [...parentConditions, "@media ".concat(query)];
         this.addConditionalRule({
           selector: root.selector,

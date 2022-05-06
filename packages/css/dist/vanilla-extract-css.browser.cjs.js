@@ -3,7 +3,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var injectStyles_dist_vanillaExtractCssInjectStyles = require('../injectStyles/dist/vanilla-extract-css-injectStyles.browser.cjs.js');
-var transformCss_dist_vanillaExtractCssTransformCss = require('./transformCss-85ec24f0.browser.cjs.js');
+var transformCss_dist_vanillaExtractCssTransformCss = require('./transformCss-d700595f.browser.cjs.js');
 var adapter_dist_vanillaExtractCssAdapter = require('../adapter/dist/vanilla-extract-css-adapter.browser.cjs.js');
 var hash = require('@emotion/hash');
 var fileScope_dist_vanillaExtractCssFileScope = require('../fileScope/dist/vanilla-extract-css-fileScope.browser.cjs.js');
@@ -16,6 +16,7 @@ var outdent = require('outdent');
 var deepmerge = require('deepmerge');
 require('escape-string-regexp');
 require('css-what');
+require('css-mediaquery');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { 'default': e }; }
 
@@ -365,13 +366,12 @@ function composedStyle(rules, debugId) {
     adapter_dist_vanillaExtractCssAdapter.registerComposition({
       identifier: className,
       classList: result
-    });
+    }); // Always mark as used
+    // if (styleRules.length > 0) {
+    // If there are styles attached to this composition then it is
+    // always used and should never be removed
 
-    if (styleRules.length > 0) {
-      // If there are styles attached to this composition then it is
-      // always used and should never be removed
-      adapter_dist_vanillaExtractCssAdapter.markCompositionUsed(className);
-    }
+    adapter_dist_vanillaExtractCssAdapter.markCompositionUsed(className); // }
   }
 
   if (styleRules.length > 0) {

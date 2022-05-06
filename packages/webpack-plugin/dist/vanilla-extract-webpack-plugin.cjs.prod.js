@@ -234,8 +234,7 @@ class VanillaExtractPlugin {
         options: {
           outputCss: this.outputCss,
           childCompiler: this.childCompiler,
-          identifiers: this.identifiers,
-          packageInfo: integration.getPackageInfo(compiler.context)
+          identifiers: this.identifiers
         }
       }]
     });
