@@ -1,5 +1,19 @@
 # @fixtures/sprinkles
 
+## 0.0.7
+
+### Patch Changes
+
+- Updated dependencies [[`32f309f`](https://github.com/seek-oss/vanilla-extract/commit/32f309faad90e927efc7a277d4208480c8b5122c)]:
+  - @vanilla-extract/css@1.7.0
+
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies [[`81a3d98`](https://github.com/seek-oss/vanilla-extract/commit/81a3d98b3fb36660406a59049e1cd464418b00fc)]:
+  - @vanilla-extract/sprinkles@1.4.0
+
 ## 0.0.5
 
 ### Patch Changes
