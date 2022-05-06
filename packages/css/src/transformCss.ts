@@ -260,7 +260,10 @@ class Stylesheet {
       transformedSelector.startsWith('sprinkles_') ||
       transformedSelector.startsWith('_')
     ) {
-      transformedSelector = `${transformedSelector}.${transformedSelector}`;
+      transformedSelector = `${transformedSelector}.${cssesc(
+        transformedSelector,
+        { isIdentifier: true },
+      )}`;
     }
 
     return this.localClassNameRegex
