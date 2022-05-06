@@ -1,19 +1,11 @@
-'use strict';
-
-var _private = require('@vanilla-extract/private');
-var cssesc = require('cssesc');
-var escapeStringRegexp = require('escape-string-regexp');
-var adapter_dist_vanillaExtractCssAdapter = require('../adapter/dist/vanilla-extract-css-adapter.browser.cjs.js');
-var taggedTemplateLiteral = require('./taggedTemplateLiteral-c635af00.browser.cjs.js');
-var cssWhat = require('css-what');
-var outdent = require('outdent');
-var cssMediaquery = require('css-mediaquery');
-
-function _interopDefault (e) { return e && e.__esModule ? e : { 'default': e }; }
-
-var cssesc__default = /*#__PURE__*/_interopDefault(cssesc);
-var escapeStringRegexp__default = /*#__PURE__*/_interopDefault(escapeStringRegexp);
-var outdent__default = /*#__PURE__*/_interopDefault(outdent);
+import { getVarName } from '@vanilla-extract/private';
+import cssesc from 'cssesc';
+import escapeStringRegexp from 'escape-string-regexp';
+import { markCompositionUsed } from '../adapter/dist/vanilla-extract-css-adapter.esm.js';
+import { _ as _taggedTemplateLiteral } from './taggedTemplateLiteral-b4c22b04.esm.js';
+import { parse } from 'css-what';
+import outdent from 'outdent';
+import { parse as parse$1 } from 'css-mediaquery';
 
 function _defineProperty(obj, key, value) {
   if (key in obj) {
@@ -164,7 +156,7 @@ function escapeRegex(string) {
 
 var validateSelector = (selector, targetClassName) => {
   var replaceTarget = () => {
-    var targetRegex = new RegExp(".".concat(escapeRegex(cssesc__default["default"](targetClassName, {
+    var targetRegex = new RegExp(".".concat(escapeRegex(cssesc(targetClassName, {
       isIdentifier: true
     }))), 'g');
     return selector.replace(targetRegex, '&');
@@ -173,7 +165,7 @@ var validateSelector = (selector, targetClassName) => {
   var selectorParts;
 
   try {
-    selectorParts = cssWhat.parse(selector);
+    selectorParts = parse(selector);
   } catch (err) {
     throw new Error("Invalid selector: ".concat(replaceTarget()));
   }
@@ -196,7 +188,7 @@ var validateSelector = (selector, targetClassName) => {
         }
       }
     } catch (err) {
-      throw new Error(outdent__default["default"](_templateObject$1 || (_templateObject$1 = taggedTemplateLiteral._taggedTemplateLiteral(["\n        Invalid selector: ", "\n    \n        Style selectors must target the '&' character (along with any modifiers), e.g. ", " or ", ".\n        \n        This is to ensure that each style block only affects the styling of a single class.\n        \n        If your selector is targeting another class, you should move it to the style definition for that class, e.g. given we have styles for 'parent' and 'child' elements, instead of adding a selector of ", ") to 'parent', you should add ", " to 'child').\n        \n        If your selector is targeting something global, use the 'globalStyle' function instead, e.g. if you wanted to write ", ", you should instead write 'globalStyle(", ", { ... })'\n      "])), replaceTarget(), '`${parent} &`', '`${parent} &:hover`', '`& ${child}`', '`${parent} &`', '`& h1`', '`${parent} h1`'));
+      throw new Error(outdent(_templateObject$1 || (_templateObject$1 = _taggedTemplateLiteral(["\n        Invalid selector: ", "\n    \n        Style selectors must target the '&' character (along with any modifiers), e.g. ", " or ", ".\n        \n        This is to ensure that each style block only affects the styling of a single class.\n        \n        If your selector is targeting another class, you should move it to the style definition for that class, e.g. given we have styles for 'parent' and 'child' elements, instead of adding a selector of ", ") to 'parent', you should add ", " to 'child').\n        \n        If your selector is targeting something global, use the 'globalStyle' function instead, e.g. if you wanted to write ", ", you should instead write 'globalStyle(", ", { ... })'\n      "])), replaceTarget(), '`${parent} &`', '`${parent} &:hover`', '`& ${child}`', '`${parent} &`', '`& h1`', '`${parent} h1`'));
     }
   });
 };
@@ -509,13 +501,13 @@ var validateMediaQuery = mediaQuery => {
   var {
     type,
     expressions
-  } = (_parse = cssMediaquery.parse(mediaQuery)) === null || _parse === void 0 ? void 0 : _parse[0];
+  } = (_parse = parse$1(mediaQuery)) === null || _parse === void 0 ? void 0 : _parse[0];
   var isAllQuery = mediaQuery === 'all';
   var isValidType = mediaTypes.includes(type); // If the parser returns all for the type, we should have expressions
   // or the query should match 'all' otherwise it is invalid
 
   if (!isValidType || !isAllQuery && type === 'all' && !expressions.length) {
-    throw new Error(outdent__default["default"](_templateObject || (_templateObject = taggedTemplateLiteral._taggedTemplateLiteral(["\n      Invalid media query: ", "\n\n      A media query can contain an optional media type and any number of media feature expressions.\n  \n      Read more on MDN: https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries\n    "])), mediaQuery));
+    throw new Error(outdent(_templateObject || (_templateObject = _taggedTemplateLiteral(["\n      Invalid media query: ", "\n\n      A media query can contain an optional media type and any number of media feature expressions.\n  \n      Read more on MDN: https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries\n    "])), mediaQuery));
   }
 };
 
@@ -582,7 +574,7 @@ class Stylesheet {
     this.conditionalRulesets = [new ConditionalRuleset()];
     this.fontFaceRules = [];
     this.keyframesRules = [];
-    this.localClassNameRegex = localClassNames.length > 0 ? RegExp("(".concat(localClassNames.map(escapeStringRegexp__default["default"]).join('|'), ")"), 'g') : null; // Class list compositions should be priortized by Newer > Older
+    this.localClassNameRegex = localClassNames.length > 0 ? RegExp("(".concat(localClassNames.map(escapeStringRegexp).join('|'), ")"), 'g') : null; // Class list compositions should be priortized by Newer > Older
     // Therefore we reverse the array as they are added in sequence
 
     this.composedClassLists = composedClassLists.map(_ref => {
@@ -674,7 +666,7 @@ class Stylesheet {
       return rest;
     }
 
-    return _objectSpread2(_objectSpread2({}, mapKeys(vars, (_value, key) => _private.getVarName(key))), rest);
+    return _objectSpread2(_objectSpread2({}, mapKeys(vars, (_value, key) => getVarName(key))), rest);
   }
 
   transformContent(_ref3) {
@@ -701,7 +693,7 @@ class Stylesheet {
 
     var _loop = function _loop(identifier, regex) {
       transformedSelector = transformedSelector.replace(regex, () => {
-        adapter_dist_vanillaExtractCssAdapter.markCompositionUsed(identifier);
+        markCompositionUsed(identifier);
         return identifier;
       });
     };
@@ -715,9 +707,7 @@ class Stylesheet {
 
 
     if (transformedSelector.startsWith('sprinkles_') || transformedSelector.startsWith('_')) {
-      transformedSelector = "".concat(transformedSelector, ".").concat(cssesc__default["default"](transformedSelector, {
-        isIdentifier: true
-      }));
+      transformedSelector = "".concat(transformedSelector, ".").concat(transformedSelector.replace(/\./gm, '\\.'));
     }
 
     return this.localClassNameRegex ? transformedSelector.replace(this.localClassNameRegex, (_, className, index) => {
@@ -725,7 +715,7 @@ class Stylesheet {
         return className;
       }
 
-      return ".".concat(cssesc__default["default"](className, {
+      return ".".concat(cssesc(className, {
         isIdentifier: true
       }));
     }) : transformedSelector;
@@ -912,6 +902,4 @@ function transformCss(_ref4) {
   return stylesheet.toCss();
 }
 
-exports._objectSpread2 = _objectSpread2;
-exports.dudupeAndJoinClassList = dudupeAndJoinClassList;
-exports.transformCss = transformCss;
+export { _objectSpread2 as _, dudupeAndJoinClassList as d, transformCss as t };
