@@ -104,10 +104,14 @@ export const createRuntimeFn =
           }
         }
 
-        className +=
-          ' ' + // @ts-expect-error
-          (config.variantClassNames[variantName][selection]?.defaultClass ??
-            config.variantClassNames[variantName][selection]);
+        const selectionClassName =
+          // @ts-expect-error
+          config.variantClassNames[variantName][selection]?.defaultClass ??
+          config.variantClassNames[variantName][selection];
+
+        if (selectionClassName) {
+          className += ' ' + selectionClassName;
+        }
       }
     }
 

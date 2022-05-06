@@ -84,6 +84,7 @@ Want to work at a higher level while maximising style re-use? Check out  🍨 [S
   - [Vite](#vite)
   - [Next.js](#nextjs)
   - [Gatsby](#gatsby)
+  - [Rollup](#rollup)
   - [Test environments](#test-environments)
   - [Configuration](#configuration)
     - [identifiers](#identifiers)
@@ -330,6 +331,32 @@ If you don't have a `.babelrc` file in the root of your project, create one. Add
 
 To add to your [Gatsby](https://www.gatsbyjs.com) site, use the [gatsby-plugin-vanilla-extract](https://github.com/gatsby-uc/plugins/tree/main/packages/gatsby-plugin-vanilla-extract) plugin.
 
+### Rollup
+
+> Note: This option is useful for library development but not suitable for application bundles.
+> Rollup has no built-in CSS bundling, so this plugin just outputs styles as individual CSS assets.
+> For applications we instead recommend to use Vite
+> (which itself uses Rollup under the hood but comes with its own CSS bundling).
+
+1. Install the dependencies.
+
+```bash
+npm install @vanilla-extract/css @vanilla-extract/rollup-plugin
+```
+
+2. Add the [Rollup](https://rollupjs.org/) plugin to your Rollup config.
+
+> 💡 This plugin accepts an optional [configuration object](#configuration).
+
+```js
+import { vanillaExtractPlugin } from '@vanilla-extract/rollup-plugin';
+
+// rollup.config.js
+export default {
+  plugins: [vanillaExtractPlugin()]
+}
+```
+
 ### Test environments
 
 1. Install the dependencies.
@@ -442,6 +469,15 @@ export const childClass = style({
 > For example, `` [`& ${childClass}`] `` is invalid since it doesn’t target “&”, so it should instead be defined in the style block for `childClass`.
 >
 > If you want to globally target child nodes within the current element (e.g. `'& a[href]'`), you should use [`globalStyle`](#globalstyle) instead.
+
+For fallback styles you may simply pass an array of properties instead of a single prop.
+
+```ts
+export const exampleStyle = style({
+  // in Firefox and IE the "overflow: overlay" will be ignored and the "overflow: auto" will be applied
+  overflow: ['auto', 'overlay'],
+});
+```
 
 Multiple styles can be composed into a single rule by providing an array of styles.
 
@@ -837,7 +873,7 @@ import { createVar, fallbackVar, style } from '@vanilla-extract/css';
 export const colorVar = createVar();
 
 export const exampleStyle = style({
-  color: fallbackVar(colorVar, 'blue');
+  color: fallbackVar(colorVar, 'blue'),
 });
 ```
 
@@ -850,7 +886,7 @@ export const primaryColorVar = createVar();
 export const secondaryColorVar = createVar();
 
 export const exampleStyle = style({
-  color: fallbackVar(primaryColorVar, secondaryColorVar, 'blue');
+  color: fallbackVar(primaryColorVar, secondaryColorVar, 'blue'),
 });
 ```
 

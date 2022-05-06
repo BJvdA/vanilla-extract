@@ -1,5 +1,23 @@
 # @vanilla-extract/esbuild-plugin
 
+## 2.0.4
+
+### Patch Changes
+
+- [#647](https://github.com/seek-oss/vanilla-extract/pull/647) [`3c9b7d9`](https://github.com/seek-oss/vanilla-extract/commit/3c9b7d9f2f7cba8635e7459c36585109b6616636) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Allow CSS url imports to be resolved
+
+- Updated dependencies [[`3c9b7d9`](https://github.com/seek-oss/vanilla-extract/commit/3c9b7d9f2f7cba8635e7459c36585109b6616636)]:
+  - @vanilla-extract/integration@4.0.0
+
+## 2.0.3
+
+### Patch Changes
+
+- [#621](https://github.com/seek-oss/vanilla-extract/pull/621) [`bec1cd8`](https://github.com/seek-oss/vanilla-extract/commit/bec1cd88d78071a995edc76a5c626f361fafcda9) Thanks [@nayaabkhan](https://github.com/nayaabkhan)! - Improve build performance when creating large CSS files
+
+- Updated dependencies [[`bec1cd8`](https://github.com/seek-oss/vanilla-extract/commit/bec1cd88d78071a995edc76a5c626f361fafcda9), [`e1550da`](https://github.com/seek-oss/vanilla-extract/commit/e1550dac59011c8161317f5f0b792a0dd520bbd4), [`e1550da`](https://github.com/seek-oss/vanilla-extract/commit/e1550dac59011c8161317f5f0b792a0dd520bbd4)]:
+  - @vanilla-extract/integration@3.0.0
+
 ## 2.0.2
 
 ### Patch Changes
