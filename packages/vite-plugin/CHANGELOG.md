@@ -1,5 +1,27 @@
 # @vanilla-extract/vite-plugin
 
+## 3.1.5
+
+### Patch Changes
+
+- [#647](https://github.com/seek-oss/vanilla-extract/pull/647) [`3c9b7d9`](https://github.com/seek-oss/vanilla-extract/commit/3c9b7d9f2f7cba8635e7459c36585109b6616636) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Use more realistic file paths for virtual CSS files
+
+- Updated dependencies [[`3c9b7d9`](https://github.com/seek-oss/vanilla-extract/commit/3c9b7d9f2f7cba8635e7459c36585109b6616636)]:
+  - @vanilla-extract/integration@4.0.0
+
+## 3.1.4
+
+### Patch Changes
+
+- [#628](https://github.com/seek-oss/vanilla-extract/pull/628) [`6fa65ad`](https://github.com/seek-oss/vanilla-extract/commit/6fa65ad60b5e2aed05f1c3ab01f12c6c8f10a730) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Fix style imports from parent directories
+
+## 3.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`bec1cd8`](https://github.com/seek-oss/vanilla-extract/commit/bec1cd88d78071a995edc76a5c626f361fafcda9), [`e1550da`](https://github.com/seek-oss/vanilla-extract/commit/e1550dac59011c8161317f5f0b792a0dd520bbd4), [`e1550da`](https://github.com/seek-oss/vanilla-extract/commit/e1550dac59011c8161317f5f0b792a0dd520bbd4)]:
+  - @vanilla-extract/integration@3.0.0
+
 ## 3.1.2
 
 ### Patch Changes

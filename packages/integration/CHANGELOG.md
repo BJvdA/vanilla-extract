@@ -1,5 +1,41 @@
 # @vanilla-extract/integration
 
+## 4.0.0
+
+### Major Changes
+
+- [#647](https://github.com/seek-oss/vanilla-extract/pull/647) [`3c9b7d9`](https://github.com/seek-oss/vanilla-extract/commit/3c9b7d9f2f7cba8635e7459c36585109b6616636) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Update `addFileScope` to always update and only use file names
+
+## 3.0.1
+
+### Patch Changes
+
+- [#639](https://github.com/seek-oss/vanilla-extract/pull/639) [`7b9ddfc`](https://github.com/seek-oss/vanilla-extract/commit/7b9ddfc30dacc66db11253f9d1862e7ba46b88ec) Thanks [@michaeltaranto](https://github.com/michaeltaranto)! - Fix "\_\_webpack_require\_\_ is not defined" error
+
+## 3.0.0
+
+### Major Changes
+
+- [#623](https://github.com/seek-oss/vanilla-extract/pull/623) [`e1550da`](https://github.com/seek-oss/vanilla-extract/commit/e1550dac59011c8161317f5f0b792a0dd520bbd4) Thanks [@mattcompiles](https://github.com/mattcompiles)! - BREAKING CHANGE
+
+  `getSourceFromVirtualCssFile` is now async.
+
+* [#623](https://github.com/seek-oss/vanilla-extract/pull/623) [`e1550da`](https://github.com/seek-oss/vanilla-extract/commit/e1550dac59011c8161317f5f0b792a0dd520bbd4) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Add `serializeCss` and `deserializeCss` utilities.
+
+  BREAKING CHANGE
+
+  Remove `base64Source` from `serializeVirtualCssPath`. Use the new `serializeCss` and `deserializeCss` functions if required.
+
+### Patch Changes
+
+- [#621](https://github.com/seek-oss/vanilla-extract/pull/621) [`bec1cd8`](https://github.com/seek-oss/vanilla-extract/commit/bec1cd88d78071a995edc76a5c626f361fafcda9) Thanks [@nayaabkhan](https://github.com/nayaabkhan)! - Improve build performance when creating large CSS files
+
+## 2.0.2
+
+### Patch Changes
+
+- [#609](https://github.com/seek-oss/vanilla-extract/pull/609) [`02f2a23`](https://github.com/seek-oss/vanilla-extract/commit/02f2a236ac0b9ce1feeac4f840eb0759e8ca1b6f) Thanks [@xnuk](https://github.com/xnuk)! - Remove unused `chalk` dep
+
 ## 2.0.1
 
 ### Patch Changes
