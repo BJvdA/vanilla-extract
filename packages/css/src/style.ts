@@ -45,11 +45,12 @@ function composedStyle(rules: Array<StyleRule | ClassNames>, debugId?: string) {
       classList: result,
     });
 
-    if (styleRules.length > 0) {
-      // If there are styles attached to this composition then it is
-      // always used and should never be removed
-      markCompositionUsed(className);
-    }
+    // Always mark as used
+    // if (styleRules.length > 0) {
+    // If there are styles attached to this composition then it is
+    // always used and should never be removed
+    markCompositionUsed(className);
+    // }
   }
 
   if (styleRules.length > 0) {
