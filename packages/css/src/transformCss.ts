@@ -261,9 +261,9 @@ class Stylesheet {
       transformedSelector.startsWith('sprinkles_') ||
       transformedSelector.startsWith('_')
     ) {
-      transformedSelector = `${transformedSelector}.${cssesc(
-        transformedSelector,
-        { isIdentifier: true },
+      transformedSelector = `${transformedSelector}.${transformedSelector.replace(
+        /\./gm,
+        '\\.',
       )}`;
     }
 
