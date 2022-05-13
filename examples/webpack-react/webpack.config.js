@@ -42,7 +42,9 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin(),
     new MiniCssExtractPlugin(),
-    new VanillaExtractPlugin(),
+    new VanillaExtractPlugin({
+      identifiers: 'short',
+    }),
   ],
   stats: 'minimal',
 };

@@ -7,7 +7,9 @@ export const mockAdapter: Adapter = {
   registerComposition: () => {},
   markCompositionUsed: () => {},
   getIdentOption: () =>
-    process.env.NODE_ENV === 'production' ? 'short' : 'debug',
+    (process.env.VANILLA_EXTRACT_IDENTIFIERS as ReturnType<
+      Adapter['getIdentOption']
+    >) || (process.env.NODE_ENV === 'production' ? 'short' : 'debug'),
 };
 
 const adapterStack: Array<Adapter> = [mockAdapter];
