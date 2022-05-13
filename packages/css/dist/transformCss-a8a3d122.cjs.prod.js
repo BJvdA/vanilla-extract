@@ -3,8 +3,8 @@
 var _private = require('@vanilla-extract/private');
 var cssesc = require('cssesc');
 var escapeStringRegexp = require('escape-string-regexp');
-var adapter_dist_vanillaExtractCssAdapter = require('../adapter/dist/vanilla-extract-css-adapter.cjs.dev.js');
-var taggedTemplateLiteral = require('./taggedTemplateLiteral-975613a0.cjs.dev.js');
+var adapter_dist_vanillaExtractCssAdapter = require('../adapter/dist/vanilla-extract-css-adapter.cjs.prod.js');
+var taggedTemplateLiteral = require('./taggedTemplateLiteral-bd61be83.cjs.prod.js');
 var cssWhat = require('css-what');
 var outdent = require('outdent');
 var cssMediaquery = require('css-mediaquery');
@@ -714,7 +714,7 @@ class Stylesheet {
     } // Make sprinkles more specific than other classes
 
 
-    if (transformedSelector.startsWith('sprinkles_') || transformedSelector.startsWith('_')) {
+    if (transformedSelector.startsWith('sprinkles_') || transformedSelector.startsWith('s_')) {
       transformedSelector = "".concat(transformedSelector, ".").concat(transformedSelector.replace(/\./gm, '\\.'));
     }
 

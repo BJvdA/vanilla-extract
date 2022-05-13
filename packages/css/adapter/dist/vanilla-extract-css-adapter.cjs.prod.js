@@ -8,7 +8,7 @@ var mockAdapter = {
   onEndFileScope: () => {},
   registerComposition: () => {},
   markCompositionUsed: () => {},
-  getIdentOption: () => 'short' 
+  getIdentOption: () => process.env.VANILLA_EXTRACT_IDENTIFIERS || ('short' )
 };
 var adapterStack = [mockAdapter];
 

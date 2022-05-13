@@ -1,5 +1,5 @@
 import { injectStyles } from '../injectStyles/dist/vanilla-extract-css-injectStyles.browser.esm.js';
-import { t as transformCss, _ as _objectSpread2, d as dudupeAndJoinClassList } from './transformCss-92f44690.browser.esm.js';
+import { t as transformCss, _ as _objectSpread2, d as dudupeAndJoinClassList } from './transformCss-9d6d0956.browser.esm.js';
 import { setAdapterIfNotSet, getIdentOption, appendCss, registerClassName, registerComposition, markCompositionUsed } from '../adapter/dist/vanilla-extract-css-adapter.browser.esm.js';
 import hash from '@emotion/hash';
 import { getAndIncrementRefCounter, getFileScope, hasFileScope } from '../fileScope/dist/vanilla-extract-css-fileScope.browser.esm.js';
@@ -171,6 +171,9 @@ function generateIdentifier(debugId) {
     if (devPrefix) {
       identifier = "".concat(devPrefix, "__").concat(identifier);
     }
+  } else if (filePath.includes('/sprinkles.css.ts')) {
+    // Prefix sprinkles with s_, they are already prefixed with spinkles_ in DEV
+    identifier = "s_".concat(identifier);
   }
 
   return identifier.match(/^[0-9]/) ? "_".concat(identifier) : identifier;

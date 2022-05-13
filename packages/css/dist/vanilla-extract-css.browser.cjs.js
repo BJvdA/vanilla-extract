@@ -3,7 +3,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var injectStyles_dist_vanillaExtractCssInjectStyles = require('../injectStyles/dist/vanilla-extract-css-injectStyles.browser.cjs.js');
-var transformCss_dist_vanillaExtractCssTransformCss = require('./transformCss-b0cb38da.browser.cjs.js');
+var transformCss_dist_vanillaExtractCssTransformCss = require('./transformCss-05266401.browser.cjs.js');
 var adapter_dist_vanillaExtractCssAdapter = require('../adapter/dist/vanilla-extract-css-adapter.browser.cjs.js');
 var hash = require('@emotion/hash');
 var fileScope_dist_vanillaExtractCssFileScope = require('../fileScope/dist/vanilla-extract-css-fileScope.browser.cjs.js');
@@ -183,6 +183,9 @@ function generateIdentifier(debugId) {
     if (devPrefix) {
       identifier = "".concat(devPrefix, "__").concat(identifier);
     }
+  } else if (filePath.includes('/sprinkles.css.ts')) {
+    // Prefix sprinkles with s_, they are already prefixed with spinkles_ in DEV
+    identifier = "s_".concat(identifier);
   }
 
   return identifier.match(/^[0-9]/) ? "_".concat(identifier) : identifier;
