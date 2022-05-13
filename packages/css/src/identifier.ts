@@ -36,6 +36,9 @@ export function generateIdentifier(debugId: string | undefined) {
     if (devPrefix) {
       identifier = `${devPrefix}__${identifier}`;
     }
+  } else if (filePath.includes('/sprinkles.css.ts')) {
+    // Prefix sprinkles with s_, they are already prefixed with spinkles_ in DEV
+    identifier = `s_${identifier}`;
   }
 
   return identifier.match(/^[0-9]/) ? `_${identifier}` : identifier;
