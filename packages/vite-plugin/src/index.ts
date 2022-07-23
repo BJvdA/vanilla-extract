@@ -1,4 +1,5 @@
 import path from 'path';
+
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 import { normalizePath } from 'vite';
 import outdent from 'outdent';
@@ -6,30 +7,34 @@ import {
   cssFileFilter,
   processVanillaFile,
   compile,
-  getPackageInfo,
   IdentifierOption,
   addFileScope,
-  stringifyFileScope,
-  parseFileScope,
+  getPackageInfo,
+  CompileOptions,
 } from '@vanilla-extract/integration';
 import { PostCSSConfigResult, resolvePostcssConfig } from './postcss';
 
 const styleUpdateEvent = (fileId: string) =>
   `vanilla-extract-style-update:${fileId}`;
 
-const virtualPrefix = 'virtual:vanilla-extract:';
-
 interface Options {
   identifiers?: IdentifierOption;
+  esbuildOptions?: CompileOptions['esbuildOptions'];
 }
-export function vanillaExtractPlugin({ identifiers }: Options = {}): Plugin {
+export function vanillaExtractPlugin({
+  identifiers,
+  esbuildOptions,
+}: Options = {}): Plugin {
   let config: ResolvedConfig;
-  let packageInfo: ReturnType<typeof getPackageInfo>;
   let server: ViteDevServer;
   let postCssConfig: PostCSSConfigResult | null;
   const cssMap = new Map<string, string>();
 
   let virtualExt: string;
+  let packageName: string;
+
+  const getAbsoluteVirtualFileId = (source: string) =>
+    normalizePath(path.join(config.root, source));
 
   return {
     name: 'vanilla-extract',
@@ -54,56 +59,61 @@ export function vanillaExtractPlugin({ identifiers }: Options = {}): Plugin {
     },
     async configResolved(resolvedConfig) {
       config = resolvedConfig;
+      packageName = getPackageInfo(config.root).name;
 
       if (config.command === 'serve') {
         postCssConfig = await resolvePostcssConfig(config);
       }
 
       virtualExt = `.vanilla.${config.command === 'serve' ? 'js' : 'css'}`;
-
-      packageInfo = getPackageInfo(config.root);
     },
-    resolveId(id) {
-      if (id.indexOf(virtualPrefix) === 0) {
-        return id;
+    resolveId(source) {
+      if (!source.endsWith(virtualExt)) {
+        return;
+      }
+
+      // Absolute paths seem to occur often in monorepos, where files are
+      // imported from outside the config root.
+      const absoluteId = source.startsWith(config.root)
+        ? source
+        : getAbsoluteVirtualFileId(source);
+
+      // There should always be an entry in the `cssMap` here.
+      // The only valid scenario for a missing one is if someone had written
+      // a file in their app using the .vanilla.js/.vanilla.css extension
+      if (cssMap.has(absoluteId)) {
+        return absoluteId;
       }
     },
     load(id) {
-      if (id.indexOf(virtualPrefix) === 0) {
-        const fileScopeId = id.slice(
-          virtualPrefix.length,
-          id.indexOf(virtualExt),
-        );
-
-        if (!cssMap.has(fileScopeId)) {
-          throw new Error(`Unable to locate ${fileScopeId} in the CSS map.`);
-        }
-
-        const css = cssMap.get(fileScopeId)!;
-
-        if (!server) {
-          return css;
-        }
-
-        const fileScope = parseFileScope(fileScopeId);
-
-        return outdent`
-          import { injectStyles } from '@vanilla-extract/css/injectStyles';
-          
-          const inject = (css) => injectStyles({
-            fileScope: ${JSON.stringify(fileScope)},
-            css
-          });
-
-          inject(${JSON.stringify(css)});
-
-          import.meta.hot.on('${styleUpdateEvent(fileScopeId)}', (css) => {
-            inject(css);
-          });   
-        `;
+      if (!cssMap.has(id)) {
+        return;
       }
 
-      return null;
+      const css = cssMap.get(id);
+
+      if (typeof css !== 'string') {
+        return;
+      }
+
+      if (!server || server.config.isProduction) {
+        return css;
+      }
+
+      return outdent`
+        import { injectStyles } from '@vanilla-extract/css/injectStyles';
+        
+        const inject = (css) => injectStyles({
+          fileScope: ${JSON.stringify({ filePath: id })},
+          css
+        });
+
+        inject(${JSON.stringify(css)});
+
+        import.meta.hot.on('${styleUpdateEvent(id)}', (css) => {
+          inject(css);
+        });   
+      `;
     },
     async transform(code, id, ssrParam) {
       if (!cssFileFilter.test(id)) {
@@ -124,14 +134,16 @@ export function vanillaExtractPlugin({ identifiers }: Options = {}): Plugin {
       if (ssr) {
         return addFileScope({
           source: code,
-          filePath: normalizePath(path.relative(packageInfo.dirname, validId)),
-          packageInfo,
-        }).source;
+          filePath: normalizePath(validId),
+          rootPath: config.root,
+          packageName,
+        });
       }
 
       const { source, watchFiles } = await compile({
         filePath: validId,
         cwd: config.root,
+        esbuildOptions,
       });
 
       for (const file of watchFiles) {
@@ -142,14 +154,14 @@ export function vanillaExtractPlugin({ identifiers }: Options = {}): Plugin {
         }
       }
 
-      return processVanillaFile({
+      const output = await processVanillaFile({
         source,
         filePath: validId,
         identOption:
           identifiers ?? (config.mode === 'production' ? 'short' : 'debug'),
         serializeVirtualCssPath: async ({ fileScope, source }) => {
-          const fileId = stringifyFileScope(fileScope);
-          const id = `${virtualPrefix}${fileId}${virtualExt}`;
+          const rootRelativeId = `${fileScope.filePath}${virtualExt}`;
+          const absoluteId = getAbsoluteVirtualFileId(rootRelativeId);
 
           let cssSource = source;
 
@@ -165,9 +177,13 @@ export function vanillaExtractPlugin({ identifiers }: Options = {}): Plugin {
             cssSource = postCssResult.css;
           }
 
-          if (server && cssMap.has(fileId) && cssMap.get(fileId) !== source) {
+          if (
+            server &&
+            cssMap.has(absoluteId) &&
+            cssMap.get(absoluteId) !== source
+          ) {
             const { moduleGraph } = server;
-            const module = moduleGraph.getModuleById(id);
+            const module = moduleGraph.getModuleById(absoluteId);
 
             if (module) {
               moduleGraph.invalidateModule(module);
@@ -175,16 +191,23 @@ export function vanillaExtractPlugin({ identifiers }: Options = {}): Plugin {
 
             server.ws.send({
               type: 'custom',
-              event: styleUpdateEvent(fileId),
+              event: styleUpdateEvent(absoluteId),
               data: cssSource,
             });
           }
 
-          cssMap.set(fileId, cssSource);
+          cssMap.set(absoluteId, cssSource);
 
-          return `import "${id}";`;
+          // We use the root relative id here to ensure file contents (content-hashes)
+          // are consistent across build machines
+          return `import "${rootRelativeId}";`;
         },
       });
+
+      return {
+        code: output,
+        map: { mappings: '' },
+      };
     },
   };
 }

@@ -1,5 +1,20 @@
 # @vanilla-extract/sprinkles
 
+## 1.4.1
+
+### Patch Changes
+
+- [#676](https://github.com/seek-oss/vanilla-extract/pull/676) [`98ab94a`](https://github.com/seek-oss/vanilla-extract/commit/98ab94a99fa7dbee395a7ae6ea4af24c7b1bd7ab) Thanks [@benjervis](https://github.com/benjervis)! - Make the sprinkles runtime more resilient to mutated prototypes.
+
+  Previously the createSprinkles function used a `for ... in` loop on an array, which creates problems when used in an environment that has monkeypatched the Array prototype improperly.
+  By switching to more original style for loops, this should be fixed.
+
+## 1.4.0
+
+### Minor Changes
+
+- [#605](https://github.com/seek-oss/vanilla-extract/pull/605) [`81a3d98`](https://github.com/seek-oss/vanilla-extract/commit/81a3d98b3fb36660406a59049e1cd464418b00fc) Thanks [@markdalgleish](https://github.com/markdalgleish)! - Support boolean conditional values, e.g. `{ mobile: false, desktop: true }`
+
 ## 1.3.3
 
 ### Patch Changes

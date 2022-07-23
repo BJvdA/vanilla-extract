@@ -1,5 +1,17 @@
 # @vanilla-extract/recipes
 
+## 0.2.5
+
+### Patch Changes
+
+- [#704](https://github.com/seek-oss/vanilla-extract/pull/704) [`64378b0`](https://github.com/seek-oss/vanilla-extract/commit/64378b083ed6fb54f073e77b62fefee673602742) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Fix compound variants not applying when default variants get passed undefined
+
+## 0.2.4
+
+### Patch Changes
+
+- [#626](https://github.com/seek-oss/vanilla-extract/pull/626) [`d91ddde`](https://github.com/seek-oss/vanilla-extract/commit/d91dddeb0d57f2322a6e3c1936cde2a2771d7414) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Ensure missing boolean variants don't return 'undefined' in class name
+
 ## 0.2.3
 
 ### Patch Changes

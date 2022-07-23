@@ -1,5 +1,23 @@
 # @vanilla-extract/css
 
+## 1.7.2
+
+### Patch Changes
+
+- [#723](https://github.com/seek-oss/vanilla-extract/pull/723) [`8467fc2`](https://github.com/seek-oss/vanilla-extract/commit/8467fc28707372f30d8b6239580244c06859a605) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Validate duplicate '@media' in media queries
+
+## 1.7.1
+
+### Patch Changes
+
+- [#684](https://github.com/seek-oss/vanilla-extract/pull/684) [`e531251`](https://github.com/seek-oss/vanilla-extract/commit/e531251689b8795eebd316ae8385f1ecc5b9b8a0) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Improve media query validation messaging
+
+## 1.7.0
+
+### Minor Changes
+
+- [#651](https://github.com/seek-oss/vanilla-extract/pull/651) [`32f309f`](https://github.com/seek-oss/vanilla-extract/commit/32f309faad90e927efc7a277d4208480c8b5122c) Thanks [@amorriscode](https://github.com/amorriscode)! - Add CSS media query validation
+
 ## 1.6.8
 
 ### Patch Changes

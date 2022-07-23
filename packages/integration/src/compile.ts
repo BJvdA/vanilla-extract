@@ -1,11 +1,15 @@
 import { dirname, join } from 'path';
 import { promises as fs } from 'fs';
 
-import { build as esbuild, Plugin } from 'esbuild';
+import {
+  build as esbuild,
+  Plugin,
+  BuildOptions as EsbuildOptions,
+} from 'esbuild';
 
 import { cssFileFilter } from './filters';
-import { getPackageInfo } from './packageInfo';
 import { addFileScope } from './addFileScope';
+import { getPackageInfo } from './packageInfo';
 
 export const vanillaExtractFilescopePlugin = (): Plugin => ({
   name: 'vanilla-extract-filescope',
@@ -15,42 +19,49 @@ export const vanillaExtractFilescopePlugin = (): Plugin => ({
     build.onLoad({ filter: cssFileFilter }, async ({ path }) => {
       const originalSource = await fs.readFile(path, 'utf-8');
 
-      const { source, updated } = addFileScope({
+      const source = addFileScope({
         source: originalSource,
         filePath: path,
-        packageInfo,
+        rootPath: build.initialOptions.absWorkingDir!,
+        packageName: packageInfo.name,
       });
 
-      if (updated) {
-        return {
-          contents: source,
-          loader: path.match(/\.(ts|tsx)$/i) ? 'ts' : undefined,
-          resolveDir: dirname(path),
-        };
-      }
+      return {
+        contents: source,
+        loader: path.match(/\.(ts|tsx)$/i) ? 'ts' : undefined,
+        resolveDir: dirname(path),
+      };
     });
   },
 });
 
-interface CompileOptions {
+export interface CompileOptions {
   filePath: string;
   cwd?: string;
-  externals?: Array<string>;
+  esbuildOptions?: Pick<
+    EsbuildOptions,
+    'plugins' | 'external' | 'define' | 'loader'
+  >;
 }
 export async function compile({
   filePath,
   cwd = process.cwd(),
-  externals = [],
+  esbuildOptions,
 }: CompileOptions) {
   const result = await esbuild({
     entryPoints: [filePath],
     metafile: true,
     bundle: true,
-    external: ['@vanilla-extract', ...externals],
+    external: ['@vanilla-extract', ...(esbuildOptions?.external ?? [])],
     platform: 'node',
     write: false,
-    plugins: [vanillaExtractFilescopePlugin()],
+    plugins: [
+      vanillaExtractFilescopePlugin(),
+      ...(esbuildOptions?.plugins ?? []),
+    ],
     absWorkingDir: cwd,
+    loader: esbuildOptions?.loader,
+    define: esbuildOptions?.define,
   });
 
   const { outputFiles, metafile } = result;

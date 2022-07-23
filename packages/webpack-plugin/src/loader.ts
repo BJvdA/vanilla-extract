@@ -5,12 +5,20 @@ import {
   IdentifierOption,
   processVanillaFile,
   addFileScope,
-  PackageInfo,
+  serializeCss,
+  getPackageInfo,
 } from '@vanilla-extract/integration';
 
 import type { LoaderContext } from './types';
 import { debug, formatResourcePath } from './logger';
 import { ChildCompiler } from './compiler';
+
+const virtualLoader = require.resolve(
+  path.join(
+    path.dirname(require.resolve('../../package.json')),
+    'virtualFileLoader',
+  ),
+);
 
 const emptyCssExtractionFile = require.resolve(
   path.join(path.dirname(require.resolve('../../package.json')), 'extracted'),
@@ -19,7 +27,6 @@ const emptyCssExtractionFile = require.resolve(
 interface LoaderOptions {
   outputCss: boolean;
   identifiers?: IdentifierOption;
-  packageInfo: PackageInfo;
 }
 
 interface InternalLoaderOptions extends LoaderOptions {
@@ -28,13 +35,15 @@ interface InternalLoaderOptions extends LoaderOptions {
 
 export default function (this: LoaderContext, source: string) {
   this.cacheable(true);
-  const { packageInfo } = loaderUtils.getOptions(this) as InternalLoaderOptions;
+
+  const { name } = getPackageInfo(this.rootContext);
 
   return addFileScope({
     source,
     filePath: this.resourcePath,
-    packageInfo,
-  }).source;
+    rootPath: this.rootContext,
+    packageName: name,
+  });
 }
 
 export function pitch(this: LoaderContext) {
@@ -72,10 +81,12 @@ export function pitch(this: LoaderContext) {
         filePath: this.resourcePath,
         identOption:
           identifiers ?? (this.mode === 'production' ? 'short' : 'debug'),
-        serializeVirtualCssPath: ({ fileName, base64Source }) => {
-          const virtualResourceLoader = `${require.resolve(
-            'virtual-resource-loader',
-          )}?${JSON.stringify({ source: base64Source })}`;
+        serializeVirtualCssPath: async ({ fileName, source }) => {
+          const serializedCss = await serializeCss(source);
+          const virtualResourceLoader = `${virtualLoader}?${JSON.stringify({
+            fileName,
+            source: serializedCss,
+          })}`;
 
           const request = loaderUtils.stringifyRequest(
             this,

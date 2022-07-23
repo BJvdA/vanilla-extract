@@ -1,5 +1,53 @@
 # @vanilla-extract/webpack-plugin
 
+## 2.1.11
+
+### Patch Changes
+
+- Updated dependencies [[`e373b51`](https://github.com/seek-oss/vanilla-extract/commit/e373b51bfa8401e0746596adafbda350c9fad4c3)]:
+  - @vanilla-extract/integration@5.0.0
+
+## 2.1.10
+
+### Patch Changes
+
+- [#673](https://github.com/seek-oss/vanilla-extract/pull/673) [`f6d5337`](https://github.com/seek-oss/vanilla-extract/commit/f6d5337ae7b955add2bb4a27ffafe1ff55b1a140) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Fix issue where `.css.ts` files with the same file path from other packages could have identifier collisions
+
+- Updated dependencies [[`f6d5337`](https://github.com/seek-oss/vanilla-extract/commit/f6d5337ae7b955add2bb4a27ffafe1ff55b1a140)]:
+  - @vanilla-extract/integration@4.0.1
+
+## 2.1.9
+
+### Patch Changes
+
+- [#647](https://github.com/seek-oss/vanilla-extract/pull/647) [`3c9b7d9`](https://github.com/seek-oss/vanilla-extract/commit/3c9b7d9f2f7cba8635e7459c36585109b6616636) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Use more realistic file paths for virtual CSS files
+
+- Updated dependencies [[`3c9b7d9`](https://github.com/seek-oss/vanilla-extract/commit/3c9b7d9f2f7cba8635e7459c36585109b6616636)]:
+  - @vanilla-extract/integration@4.0.0
+
+## 2.1.8
+
+### Patch Changes
+
+- [#634](https://github.com/seek-oss/vanilla-extract/pull/634) [`69b8460`](https://github.com/seek-oss/vanilla-extract/commit/69b846015ecada3354ea292e1276e5da560923c6) Thanks [@phil-lgr](https://github.com/phil-lgr)! - Add fileName to the CSS virtual loader params
+
+  This allows users to identify the source file for vanilla-extract css imports
+
+## 2.1.7
+
+### Patch Changes
+
+- [#645](https://github.com/seek-oss/vanilla-extract/pull/645) [`5ebca75`](https://github.com/seek-oss/vanilla-extract/commit/5ebca758d18e7d55d0c079c00178cb14e936ac2e) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Bump `@vanilla-extract/integration` dep
+
+## 2.1.6
+
+### Patch Changes
+
+- [#621](https://github.com/seek-oss/vanilla-extract/pull/621) [`bec1cd8`](https://github.com/seek-oss/vanilla-extract/commit/bec1cd88d78071a995edc76a5c626f361fafcda9) Thanks [@nayaabkhan](https://github.com/nayaabkhan)! - Improve build performance when creating large CSS files
+
+- Updated dependencies [[`bec1cd8`](https://github.com/seek-oss/vanilla-extract/commit/bec1cd88d78071a995edc76a5c626f361fafcda9), [`e1550da`](https://github.com/seek-oss/vanilla-extract/commit/e1550dac59011c8161317f5f0b792a0dd520bbd4), [`e1550da`](https://github.com/seek-oss/vanilla-extract/commit/e1550dac59011c8161317f5f0b792a0dd520bbd4)]:
+  - @vanilla-extract/integration@3.0.0
+
 ## 2.1.5
 
 ### Patch Changes

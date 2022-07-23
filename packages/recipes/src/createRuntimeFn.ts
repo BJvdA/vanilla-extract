@@ -9,6 +9,7 @@ const getApplicableCompounds = <Variants extends VariantGroups>(
   compoundClassNames: any,
   compoundCheck: VariantSelection<Variants>,
   selections: any,
+  defaultVariants: VariantSelection<Variants>,
 ) => {
   let responsiveSize;
 
@@ -27,7 +28,9 @@ const getApplicableCompounds = <Variants extends VariantGroups>(
       if (!Object.values(selections[key]).includes(compoundCheck[key])) {
         return false;
       }
-    } else if (compoundCheck[key] !== selections[key]) {
+    } else if (
+      compoundCheck[key] !== (selections[key] ?? defaultVariants[key])
+    ) {
       return false;
     }
   }
@@ -104,10 +107,14 @@ export const createRuntimeFn =
           }
         }
 
-        className +=
-          ' ' + // @ts-expect-error
-          (config.variantClassNames[variantName][selection]?.defaultClass ??
-            config.variantClassNames[variantName][selection]);
+        const selectionClassName =
+          // @ts-expect-error
+          config.variantClassNames[variantName][selection]?.defaultClass ??
+          config.variantClassNames[variantName][selection];
+
+        if (selectionClassName) {
+          className += ' ' + selectionClassName;
+        }
       }
     }
 
@@ -116,6 +123,7 @@ export const createRuntimeFn =
         compoundClassNames,
         compoundCheck,
         selections,
+        config.defaultVariants,
       );
 
       if (compoundClassName) {

@@ -1,5 +1,58 @@
 # @vanilla-extract/integration
 
+## 5.0.0
+
+### Major Changes
+
+- [#668](https://github.com/seek-oss/vanilla-extract/pull/668) [`e373b51`](https://github.com/seek-oss/vanilla-extract/commit/e373b51bfa8401e0746596adafbda350c9fad4c3) Thanks [@AndrewLeedham](https://github.com/AndrewLeedham)! - Add esbuild configurations to vite/esbuild/rollup plugins
+
+### Patch Changes
+
+- Updated dependencies [[`8467fc2`](https://github.com/seek-oss/vanilla-extract/commit/8467fc28707372f30d8b6239580244c06859a605)]:
+  - @vanilla-extract/css@1.7.2
+
+## 4.0.1
+
+### Patch Changes
+
+- [#673](https://github.com/seek-oss/vanilla-extract/pull/673) [`f6d5337`](https://github.com/seek-oss/vanilla-extract/commit/f6d5337ae7b955add2bb4a27ffafe1ff55b1a140) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Fix issue where `.css.ts` files with the same file path from other packages could have identifier collisions
+
+## 4.0.0
+
+### Major Changes
+
+- [#647](https://github.com/seek-oss/vanilla-extract/pull/647) [`3c9b7d9`](https://github.com/seek-oss/vanilla-extract/commit/3c9b7d9f2f7cba8635e7459c36585109b6616636) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Update `addFileScope` to always update and only use file names
+
+## 3.0.1
+
+### Patch Changes
+
+- [#639](https://github.com/seek-oss/vanilla-extract/pull/639) [`7b9ddfc`](https://github.com/seek-oss/vanilla-extract/commit/7b9ddfc30dacc66db11253f9d1862e7ba46b88ec) Thanks [@michaeltaranto](https://github.com/michaeltaranto)! - Fix "\_\_webpack_require\_\_ is not defined" error
+
+## 3.0.0
+
+### Major Changes
+
+- [#623](https://github.com/seek-oss/vanilla-extract/pull/623) [`e1550da`](https://github.com/seek-oss/vanilla-extract/commit/e1550dac59011c8161317f5f0b792a0dd520bbd4) Thanks [@mattcompiles](https://github.com/mattcompiles)! - BREAKING CHANGE
+
+  `getSourceFromVirtualCssFile` is now async.
+
+* [#623](https://github.com/seek-oss/vanilla-extract/pull/623) [`e1550da`](https://github.com/seek-oss/vanilla-extract/commit/e1550dac59011c8161317f5f0b792a0dd520bbd4) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Add `serializeCss` and `deserializeCss` utilities.
+
+  BREAKING CHANGE
+
+  Remove `base64Source` from `serializeVirtualCssPath`. Use the new `serializeCss` and `deserializeCss` functions if required.
+
+### Patch Changes
+
+- [#621](https://github.com/seek-oss/vanilla-extract/pull/621) [`bec1cd8`](https://github.com/seek-oss/vanilla-extract/commit/bec1cd88d78071a995edc76a5c626f361fafcda9) Thanks [@nayaabkhan](https://github.com/nayaabkhan)! - Improve build performance when creating large CSS files
+
+## 2.0.2
+
+### Patch Changes
+
+- [#609](https://github.com/seek-oss/vanilla-extract/pull/609) [`02f2a23`](https://github.com/seek-oss/vanilla-extract/commit/02f2a236ac0b9ce1feeac4f840eb0759e8ca1b6f) Thanks [@xnuk](https://github.com/xnuk)! - Remove unused `chalk` dep
+
 ## 2.0.1
 
 ### Patch Changes

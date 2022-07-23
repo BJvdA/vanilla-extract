@@ -20,6 +20,7 @@ import { forEach, omit, mapKeys } from './utils';
 import { validateSelector } from './validateSelector';
 import { ConditionalRuleset } from './conditionalRulesets';
 import { simplePseudos, simplePseudoLookup } from './simplePseudos';
+import { validateMediaQuery } from './validateMediaQuery';
 
 const UNITLESS: Record<string, boolean> = {
   animationIterationCount: true,
@@ -336,7 +337,11 @@ class Stylesheet {
       );
 
       forEach(rules, (mediaRule, query) => {
-        const conditions = [...parentConditions, `@media ${query}`];
+        const mediaQuery = `@media ${query}`;
+
+        validateMediaQuery(mediaQuery);
+
+        const conditions = [...parentConditions, mediaQuery];
 
         this.addConditionalRule(
           {

@@ -1,5 +1,103 @@
 # @vanilla-extract-private/tests
 
+## 0.0.20
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @vanilla-extract-private/test-helpers@0.0.20
+
+## 0.0.19
+
+### Patch Changes
+
+- Updated dependencies [[`8467fc2`](https://github.com/seek-oss/vanilla-extract/commit/8467fc28707372f30d8b6239580244c06859a605)]:
+  - @vanilla-extract/css@1.7.2
+  - @vanilla-extract-private/test-helpers@0.0.19
+
+## 0.0.18
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @vanilla-extract-private/test-helpers@0.0.18
+
+## 0.0.17
+
+### Patch Changes
+
+- Updated dependencies [[`e531251`](https://github.com/seek-oss/vanilla-extract/commit/e531251689b8795eebd316ae8385f1ecc5b9b8a0), [`64378b0`](https://github.com/seek-oss/vanilla-extract/commit/64378b083ed6fb54f073e77b62fefee673602742)]:
+  - @vanilla-extract/css@1.7.1
+  - @vanilla-extract/recipes@0.2.5
+  - @vanilla-extract-private/test-helpers@0.0.17
+
+## 0.0.16
+
+### Patch Changes
+
+- Updated dependencies [[`98ab94a`](https://github.com/seek-oss/vanilla-extract/commit/98ab94a99fa7dbee395a7ae6ea4af24c7b1bd7ab)]:
+  - @vanilla-extract/sprinkles@1.4.1
+  - @vanilla-extract-private/test-helpers@0.0.16
+
+## 0.0.15
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @vanilla-extract-private/test-helpers@0.0.15
+
+## 0.0.14
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @vanilla-extract-private/test-helpers@0.0.14
+
+## 0.0.13
+
+### Patch Changes
+
+- Updated dependencies [[`32f309f`](https://github.com/seek-oss/vanilla-extract/commit/32f309faad90e927efc7a277d4208480c8b5122c)]:
+  - @vanilla-extract/css@1.7.0
+  - @vanilla-extract-private/test-helpers@0.0.13
+
+## 0.0.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @vanilla-extract-private/test-helpers@0.0.12
+
+## 0.0.11
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @vanilla-extract-private/test-helpers@0.0.11
+
+## 0.0.10
+
+### Patch Changes
+
+- Updated dependencies [[`d91ddde`](https://github.com/seek-oss/vanilla-extract/commit/d91dddeb0d57f2322a6e3c1936cde2a2771d7414)]:
+  - @vanilla-extract/recipes@0.2.4
+  - @vanilla-extract-private/test-helpers@0.0.10
+
+## 0.0.9
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @vanilla-extract-private/test-helpers@0.0.9
+
+## 0.0.8
+
+### Patch Changes
+
+- Updated dependencies [[`81a3d98`](https://github.com/seek-oss/vanilla-extract/commit/81a3d98b3fb36660406a59049e1cd464418b00fc)]:
+  - @vanilla-extract/sprinkles@1.4.0
+  - @vanilla-extract-private/test-helpers@0.0.8
+
 ## 0.0.7
 
 ### Patch Changes
