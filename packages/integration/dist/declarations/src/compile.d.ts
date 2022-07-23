@@ -1,12 +1,11 @@
-import { Plugin } from 'esbuild';
+import { Plugin, BuildOptions as EsbuildOptions } from 'esbuild';
 export declare const vanillaExtractFilescopePlugin: () => Plugin;
-interface CompileOptions {
+export interface CompileOptions {
     filePath: string;
     cwd?: string;
-    externals?: Array<string>;
+    esbuildOptions?: Pick<EsbuildOptions, 'plugins' | 'external' | 'define' | 'loader'>;
 }
-export declare function compile({ filePath, cwd, externals, }: CompileOptions): Promise<{
+export declare function compile({ filePath, cwd, esbuildOptions, }: CompileOptions): Promise<{
     source: string;
     watchFiles: string[];
 }>;
-export {};

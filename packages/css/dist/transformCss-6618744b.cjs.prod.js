@@ -3,11 +3,11 @@
 var _private = require('@vanilla-extract/private');
 var cssesc = require('cssesc');
 var escapeStringRegexp = require('escape-string-regexp');
-var adapter_dist_vanillaExtractCssAdapter = require('../adapter/dist/vanilla-extract-css-adapter.cjs.dev.js');
-var taggedTemplateLiteral = require('./taggedTemplateLiteral-975613a0.cjs.dev.js');
+var adapter_dist_vanillaExtractCssAdapter = require('../adapter/dist/vanilla-extract-css-adapter.cjs.prod.js');
+var taggedTemplateLiteral = require('./taggedTemplateLiteral-bd61be83.cjs.prod.js');
 var cssWhat = require('css-what');
 var outdent = require('outdent');
-var cssMediaquery = require('css-mediaquery');
+var mediaQueryParser = require('media-query-parser');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { 'default': e }; }
 
@@ -502,20 +502,19 @@ var simplePseudos = Object.keys(simplePseudoMap);
 var simplePseudoLookup = simplePseudoMap;
 
 var _templateObject;
-var mediaTypes = ['all', 'print', 'screen'];
+
+var createMediaQueryError = (mediaQuery, msg) => new Error(outdent__default["default"](_templateObject || (_templateObject = taggedTemplateLiteral._taggedTemplateLiteral(["\n    Invalid media query: \"", "\"\n\n    ", "\n\n    Read more on MDN: https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries\n  "])), mediaQuery, msg));
+
 var validateMediaQuery = mediaQuery => {
-  var _parse;
+  // Empty queries will start with '@media '
+  if (mediaQuery === '@media ') {
+    throw createMediaQueryError(mediaQuery, 'Query is empty');
+  }
 
-  var {
-    type,
-    expressions
-  } = (_parse = cssMediaquery.parse(mediaQuery)) === null || _parse === void 0 ? void 0 : _parse[0];
-  var isAllQuery = mediaQuery === 'all';
-  var isValidType = mediaTypes.includes(type); // If the parser returns all for the type, we should have expressions
-  // or the query should match 'all' otherwise it is invalid
-
-  if (!isValidType || !isAllQuery && type === 'all' && !expressions.length) {
-    throw new Error(outdent__default["default"](_templateObject || (_templateObject = taggedTemplateLiteral._taggedTemplateLiteral(["\n      Invalid media query: ", "\n\n      A media query can contain an optional media type and any number of media feature expressions.\n  \n      Read more on MDN: https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries\n    "])), mediaQuery));
+  try {
+    mediaQueryParser.toAST(mediaQuery);
+  } catch (e) {
+    throw createMediaQueryError(mediaQuery, e.message);
   }
 };
 
@@ -766,8 +765,9 @@ class Stylesheet {
 
       (_this$currConditional = this.currConditionalRuleset) === null || _this$currConditional === void 0 ? void 0 : _this$currConditional.addConditionPrecedence(parentConditions, Object.keys(rules).map(query => "@media ".concat(query)));
       forEach(rules, (mediaRule, query) => {
-        validateMediaQuery(query);
-        var conditions = [...parentConditions, "@media ".concat(query)];
+        var mediaQuery = "@media ".concat(query);
+        validateMediaQuery(mediaQuery);
+        var conditions = [...parentConditions, mediaQuery];
         this.addConditionalRule({
           selector: root.selector,
           rule: omit(mediaRule, specialKeys)

@@ -1,4 +1,4 @@
-import { c as createSprinkles$1 } from '../../dist/createSprinkles-3481a460.esm.js';
+import { c as createSprinkles$1 } from '../../dist/createSprinkles-c150330f.esm.js';
 
 var composeStyles = classList => classList;
 

@@ -1,5 +1,5 @@
 import { injectStyles } from '../injectStyles/dist/vanilla-extract-css-injectStyles.esm.js';
-import { t as transformCss, _ as _objectSpread2, d as dudupeAndJoinClassList } from './transformCss-2ce771f7.esm.js';
+import { t as transformCss, _ as _objectSpread2, d as dudupeAndJoinClassList } from './transformCss-36d1f55d.esm.js';
 import { setAdapterIfNotSet, getIdentOption, appendCss, registerClassName, registerComposition, markCompositionUsed } from '../adapter/dist/vanilla-extract-css-adapter.esm.js';
 import hash from '@emotion/hash';
 import { getAndIncrementRefCounter, getFileScope, hasFileScope } from '../fileScope/dist/vanilla-extract-css-fileScope.esm.js';
@@ -12,7 +12,7 @@ import outdent from 'outdent';
 import deepmerge from 'deepmerge';
 import 'escape-string-regexp';
 import 'css-what';
-import 'css-mediaquery';
+import 'media-query-parser';
 
 var localClassNames = new Set();
 var composedClassLists = [];

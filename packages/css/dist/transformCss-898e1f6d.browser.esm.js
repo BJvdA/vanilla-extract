@@ -5,7 +5,7 @@ import { markCompositionUsed } from '../adapter/dist/vanilla-extract-css-adapter
 import { _ as _taggedTemplateLiteral } from './taggedTemplateLiteral-2d2668f5.browser.esm.js';
 import { parse } from 'css-what';
 import outdent from 'outdent';
-import { parse as parse$1 } from 'css-mediaquery';
+import { toAST } from 'media-query-parser';
 
 function _defineProperty(obj, key, value) {
   if (key in obj) {
@@ -494,20 +494,19 @@ var simplePseudos = Object.keys(simplePseudoMap);
 var simplePseudoLookup = simplePseudoMap;
 
 var _templateObject;
-var mediaTypes = ['all', 'print', 'screen'];
+
+var createMediaQueryError = (mediaQuery, msg) => new Error(outdent(_templateObject || (_templateObject = _taggedTemplateLiteral(["\n    Invalid media query: \"", "\"\n\n    ", "\n\n    Read more on MDN: https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries\n  "])), mediaQuery, msg));
+
 var validateMediaQuery = mediaQuery => {
-  var _parse;
+  // Empty queries will start with '@media '
+  if (mediaQuery === '@media ') {
+    throw createMediaQueryError(mediaQuery, 'Query is empty');
+  }
 
-  var {
-    type,
-    expressions
-  } = (_parse = parse$1(mediaQuery)) === null || _parse === void 0 ? void 0 : _parse[0];
-  var isAllQuery = mediaQuery === 'all';
-  var isValidType = mediaTypes.includes(type); // If the parser returns all for the type, we should have expressions
-  // or the query should match 'all' otherwise it is invalid
-
-  if (!isValidType || !isAllQuery && type === 'all' && !expressions.length) {
-    throw new Error(outdent(_templateObject || (_templateObject = _taggedTemplateLiteral(["\n      Invalid media query: ", "\n\n      A media query can contain an optional media type and any number of media feature expressions.\n  \n      Read more on MDN: https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries\n    "])), mediaQuery));
+  try {
+    toAST(mediaQuery);
+  } catch (e) {
+    throw createMediaQueryError(mediaQuery, e.message);
   }
 };
 
@@ -758,8 +757,9 @@ class Stylesheet {
 
       (_this$currConditional = this.currConditionalRuleset) === null || _this$currConditional === void 0 ? void 0 : _this$currConditional.addConditionPrecedence(parentConditions, Object.keys(rules).map(query => "@media ".concat(query)));
       forEach(rules, (mediaRule, query) => {
-        validateMediaQuery(query);
-        var conditions = [...parentConditions, "@media ".concat(query)];
+        var mediaQuery = "@media ".concat(query);
+        validateMediaQuery(mediaQuery);
+        var conditions = [...parentConditions, mediaQuery];
         this.addConditionalRule({
           selector: root.selector,
           rule: omit(mediaRule, specialKeys)

@@ -27,10 +27,14 @@ const emptyCssExtractionFile = require.resolve(path__default["default"].join(pat
 
 function loader (source) {
   this.cacheable(true);
+  const {
+    name
+  } = integration.getPackageInfo(this.rootContext);
   return integration.addFileScope({
     source,
     filePath: this.resourcePath,
-    rootPath: this.rootContext
+    rootPath: this.rootContext,
+    packageName: name
   });
 }
 function pitch() {
@@ -65,7 +69,7 @@ function pitch() {
       }) => {
         const serializedCss = await integration.serializeCss(source);
         const virtualResourceLoader = `${virtualLoader}?${JSON.stringify({
-          fileName: fileName,
+          fileName,
           source: serializedCss
         })}`;
         const request = loaderUtils__default["default"].stringifyRequest(this, `${fileName}!=!${virtualResourceLoader}!${emptyCssExtractionFile}`);

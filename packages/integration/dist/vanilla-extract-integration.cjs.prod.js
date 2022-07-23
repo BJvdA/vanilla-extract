@@ -120,7 +120,7 @@ async function processVanillaFile({
       composedClassLists,
       cssObjs: fileScopeCss
     }).join('\n');
-    const fileName = `${fileScope.packageName ? `${fileScope.packageName}/${fileScope.filePath}` : fileScope.filePath}.vanilla.css`;
+    const fileName = `${fileScope.filePath}.vanilla.css`;
     let virtualCssFilePath;
 
     if (serializeVirtualCssPath) {
@@ -281,18 +281,19 @@ const virtualCssFileFilter = /\.vanilla\.css\?source=.*$/;
 function addFileScope({
   source,
   filePath,
-  rootPath
+  rootPath,
+  packageName
 }) {
   // Encode windows file paths as posix
   const normalizedPath = path.posix.join(...path.relative(rootPath, filePath).split(path.sep));
 
   if (source.indexOf('@vanilla-extract/css/fileScope') > -1) {
-    return source.replace(/setFileScope\(((\n|.)*?)\)/, `setFileScope("${normalizedPath}")`);
+    return source.replace(/setFileScope\(((\n|.)*?)\)/, `setFileScope("${normalizedPath}", "${packageName}")`);
   }
 
   return `
     import { setFileScope, endFileScope } from "@vanilla-extract/css/fileScope";
-    setFileScope("${normalizedPath}");
+    setFileScope("${normalizedPath}", "${packageName}");
     ${source}
     endFileScope();
   `;
@@ -302,6 +303,7 @@ const vanillaExtractFilescopePlugin = () => ({
   name: 'vanilla-extract-filescope',
 
   setup(build) {
+    const packageInfo = getPackageInfo(build.initialOptions.absWorkingDir);
     build.onLoad({
       filter: cssFileFilter
     }, async ({
@@ -311,7 +313,8 @@ const vanillaExtractFilescopePlugin = () => ({
       const source = addFileScope({
         source: originalSource,
         filePath: path$1,
-        rootPath: build.initialOptions.absWorkingDir
+        rootPath: build.initialOptions.absWorkingDir,
+        packageName: packageInfo.name
       });
       return {
         contents: source,
@@ -325,17 +328,21 @@ const vanillaExtractFilescopePlugin = () => ({
 async function compile({
   filePath,
   cwd = process.cwd(),
-  externals = []
+  esbuildOptions
 }) {
+  var _esbuildOptions$exter, _esbuildOptions$plugi;
+
   const result = await esbuild.build({
     entryPoints: [filePath],
     metafile: true,
     bundle: true,
-    external: ['@vanilla-extract', ...externals],
+    external: ['@vanilla-extract', ...((_esbuildOptions$exter = esbuildOptions === null || esbuildOptions === void 0 ? void 0 : esbuildOptions.external) !== null && _esbuildOptions$exter !== void 0 ? _esbuildOptions$exter : [])],
     platform: 'node',
     write: false,
-    plugins: [vanillaExtractFilescopePlugin()],
-    absWorkingDir: cwd
+    plugins: [vanillaExtractFilescopePlugin(), ...((_esbuildOptions$plugi = esbuildOptions === null || esbuildOptions === void 0 ? void 0 : esbuildOptions.plugins) !== null && _esbuildOptions$plugi !== void 0 ? _esbuildOptions$plugi : [])],
+    absWorkingDir: cwd,
+    loader: esbuildOptions === null || esbuildOptions === void 0 ? void 0 : esbuildOptions.loader,
+    define: esbuildOptions === null || esbuildOptions === void 0 ? void 0 : esbuildOptions.define
   });
   const {
     outputFiles,

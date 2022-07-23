@@ -8,3 +8,4 @@ export { serializeCss, deserializeCss } from './serialize';
 export * from './filters';
 export type { IdentifierOption } from './processVanillaFile';
 export type { PackageInfo } from './packageInfo';
+export type { CompileOptions } from './compile';

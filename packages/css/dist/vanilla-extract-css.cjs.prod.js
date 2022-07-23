@@ -3,7 +3,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var injectStyles_dist_vanillaExtractCssInjectStyles = require('../injectStyles/dist/vanilla-extract-css-injectStyles.cjs.prod.js');
-var transformCss_dist_vanillaExtractCssTransformCss = require('./transformCss-624f87ed.cjs.prod.js');
+var transformCss_dist_vanillaExtractCssTransformCss = require('./transformCss-6618744b.cjs.prod.js');
 var adapter_dist_vanillaExtractCssAdapter = require('../adapter/dist/vanilla-extract-css-adapter.cjs.prod.js');
 var hash = require('@emotion/hash');
 var fileScope_dist_vanillaExtractCssFileScope = require('../fileScope/dist/vanilla-extract-css-fileScope.cjs.prod.js');
@@ -16,7 +16,7 @@ var outdent = require('outdent');
 var deepmerge = require('deepmerge');
 require('escape-string-regexp');
 require('css-what');
-require('css-mediaquery');
+require('media-query-parser');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { 'default': e }; }
 

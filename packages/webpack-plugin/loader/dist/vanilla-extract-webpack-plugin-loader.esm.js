@@ -1,6 +1,6 @@
 import path from 'path';
 import loaderUtils from 'loader-utils';
-import { addFileScope, processVanillaFile, serializeCss } from '@vanilla-extract/integration';
+import { getPackageInfo, addFileScope, processVanillaFile, serializeCss } from '@vanilla-extract/integration';
 import createDebug from 'debug';
 import chalk from 'chalk';
 
@@ -16,10 +16,14 @@ const emptyCssExtractionFile = require.resolve(path.join(path.dirname(require.re
 
 function loader (source) {
   this.cacheable(true);
+  const {
+    name
+  } = getPackageInfo(this.rootContext);
   return addFileScope({
     source,
     filePath: this.resourcePath,
-    rootPath: this.rootContext
+    rootPath: this.rootContext,
+    packageName: name
   });
 }
 function pitch() {
@@ -54,7 +58,7 @@ function pitch() {
       }) => {
         const serializedCss = await serializeCss(source);
         const virtualResourceLoader = `${virtualLoader}?${JSON.stringify({
-          fileName: fileName,
+          fileName,
           source: serializedCss
         })}`;
         const request = loaderUtils.stringifyRequest(this, `${fileName}!=!${virtualResourceLoader}!${emptyCssExtractionFile}`);

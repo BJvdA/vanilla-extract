@@ -7,7 +7,8 @@ function vanillaExtractPlugin({
   externals = [],
   runtime = false,
   processCss,
-  identifiers
+  identifiers,
+  esbuildOptions
 } = {}) {
   if (runtime) {
     // If using runtime CSS then just apply fileScopes to code
@@ -56,13 +57,27 @@ function vanillaExtractPlugin({
       }, async ({
         path
       }) => {
+        var _esbuildOptions;
+
+        const combinedEsbuildOptions = (_esbuildOptions = { ...esbuildOptions
+        }) !== null && _esbuildOptions !== void 0 ? _esbuildOptions : {}; // To avoid a breaking change this combines the `external` option from
+        // esbuildOptions with the pre-existing externals option.
+
+        if (externals) {
+          if (combinedEsbuildOptions.external) {
+            combinedEsbuildOptions.external.push(...externals);
+          } else {
+            combinedEsbuildOptions.external = externals;
+          }
+        }
+
         const {
           source,
           watchFiles
         } = await compile({
           filePath: path,
-          externals,
-          cwd: build.initialOptions.absWorkingDir
+          cwd: build.initialOptions.absWorkingDir,
+          esbuildOptions: combinedEsbuildOptions
         });
         const contents = await processVanillaFile({
           source,

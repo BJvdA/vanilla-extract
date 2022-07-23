@@ -5,7 +5,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var css = require('@vanilla-extract/css');
 var recipe = require('@vanilla-extract/css/recipe');
 var fileScope = require('@vanilla-extract/css/fileScope');
-var createSprinkles$1 = require('./createSprinkles-41696ec2.cjs.prod.js');
+var createSprinkles$1 = require('./createSprinkles-52abf088.cjs.prod.js');
 var createUtils_dist_vanillaExtractSprinklesCreateUtils = require('../createUtils/dist/vanilla-extract-sprinkles-createUtils.cjs.prod.js');
 
 function defineProperties(options) {

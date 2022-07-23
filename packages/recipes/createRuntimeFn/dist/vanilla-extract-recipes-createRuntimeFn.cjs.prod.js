@@ -55,10 +55,12 @@ function _objectSpread2(target) {
   return target;
 }
 
-var getApplicableCompounds = (compoundClassNames, compoundCheck, selections) => {
+var getApplicableCompounds = (compoundClassNames, compoundCheck, selections, defaultVariants) => {
   var responsiveSize;
 
   for (var key of Object.keys(compoundCheck)) {
+    var _selections$key;
+
     if (Array.isArray(selections[key])) {
       var responsiveIndex = selections[key].indexOf(compoundCheck[key]);
 
@@ -75,7 +77,7 @@ var getApplicableCompounds = (compoundClassNames, compoundCheck, selections) => 
       if (!Object.values(selections[key]).includes(compoundCheck[key])) {
         return false;
       }
-    } else if (compoundCheck[key] !== selections[key]) {
+    } else if (compoundCheck[key] !== ((_selections$key = selections[key]) !== null && _selections$key !== void 0 ? _selections$key : defaultVariants[key])) {
       return false;
     }
   }
@@ -139,7 +141,7 @@ var createRuntimeFn = config => options => {
   }
 
   for (var [compoundCheck, compoundClassNames] of config.compoundVariants) {
-    var compoundClassName = getApplicableCompounds(compoundClassNames, compoundCheck, selections);
+    var compoundClassName = getApplicableCompounds(compoundClassNames, compoundCheck, selections, config.defaultVariants);
 
     if (compoundClassName) {
       className += ' ' + compoundClassName;

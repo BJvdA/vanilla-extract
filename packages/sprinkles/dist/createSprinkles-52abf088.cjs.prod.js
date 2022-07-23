@@ -104,7 +104,7 @@ var createSprinkles = composeStyles => function () {
 
           classNames.push(_sprinkle.values[propValue].defaultClass);
         } else if (Array.isArray(propValue)) {
-          for (var responsiveIndex in propValue) {
+          for (var responsiveIndex = 0; responsiveIndex < propValue.length; responsiveIndex++) {
             var responsiveValue = propValue[responsiveIndex];
 
             if (responsiveValue != null) {

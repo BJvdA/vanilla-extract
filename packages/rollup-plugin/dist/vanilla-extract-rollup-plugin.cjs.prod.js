@@ -5,13 +5,23 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var integration = require('@vanilla-extract/integration');
 var path = require('path');
 
+const {
+  relative,
+  normalize,
+  dirname
+} = path.posix;
 function vanillaExtractPlugin({
   identifiers,
-  cwd = process.cwd()
+  cwd = process.cwd(),
+  esbuildOptions
 } = {}) {
   const emittedFiles = new Map();
   return {
     name: 'vanilla-extract',
+
+    buildStart() {
+      emittedFiles.clear();
+    },
 
     async transform(_code, id) {
       if (!integration.cssFileFilter.test(id)) {
@@ -25,18 +35,25 @@ function vanillaExtractPlugin({
         watchFiles
       } = await integration.compile({
         filePath,
-        cwd
+        cwd,
+        esbuildOptions
       });
 
       for (const file of watchFiles) {
         this.addWatchFile(file);
       }
 
-      return integration.processVanillaFile({
+      const output = await integration.processVanillaFile({
         source,
         filePath,
         identOption: identifiers !== null && identifiers !== void 0 ? identifiers : 'short' 
       });
+      return {
+        code: output,
+        map: {
+          mappings: ''
+        }
+      };
     },
 
     async resolveId(id) {
@@ -67,6 +84,8 @@ function vanillaExtractPlugin({
     },
 
     renderChunk(code, chunkInfo) {
+      var _chunkInfo$map;
+
       // For all imports in this chunk that we have emitted files for...
       const importsToReplace = chunkInfo.imports.filter(fileName => emittedFiles.get(fileName));
 
@@ -75,13 +94,17 @@ function vanillaExtractPlugin({
       } // ...replace import paths with relative paths to emitted css files
 
 
-      const chunkPath = path.dirname(chunkInfo.fileName);
-      return importsToReplace.reduce((codeResult, importPath) => {
+      const chunkPath = dirname(chunkInfo.fileName);
+      const output = importsToReplace.reduce((codeResult, importPath) => {
         const assetId = emittedFiles.get(importPath);
         const assetName = this.getFileName(assetId);
-        const fixedImportPath = `./${path.normalize(path.relative(chunkPath, assetName))}`;
+        const fixedImportPath = `./${normalize(relative(chunkPath, assetName))}`;
         return codeResult.replace(importPath, fixedImportPath);
       }, code);
+      return {
+        code: output,
+        map: (_chunkInfo$map = chunkInfo.map) !== null && _chunkInfo$map !== void 0 ? _chunkInfo$map : null
+      };
     }
 
   };
