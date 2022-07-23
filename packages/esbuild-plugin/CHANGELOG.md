@@ -1,5 +1,25 @@
 # @vanilla-extract/esbuild-plugin
 
+## 2.1.0
+
+### Minor Changes
+
+- [#668](https://github.com/seek-oss/vanilla-extract/pull/668) [`e373b51`](https://github.com/seek-oss/vanilla-extract/commit/e373b51bfa8401e0746596adafbda350c9fad4c3) Thanks [@AndrewLeedham](https://github.com/AndrewLeedham)! - Add esbuild configurations to vite/esbuild/rollup plugins
+
+### Patch Changes
+
+- Updated dependencies [[`e373b51`](https://github.com/seek-oss/vanilla-extract/commit/e373b51bfa8401e0746596adafbda350c9fad4c3)]:
+  - @vanilla-extract/integration@5.0.0
+
+## 2.0.5
+
+### Patch Changes
+
+- [#673](https://github.com/seek-oss/vanilla-extract/pull/673) [`f6d5337`](https://github.com/seek-oss/vanilla-extract/commit/f6d5337ae7b955add2bb4a27ffafe1ff55b1a140) Thanks [@mattcompiles](https://github.com/mattcompiles)! - Fix issue where `.css.ts` files with the same file path from other packages could have identifier collisions
+
+- Updated dependencies [[`f6d5337`](https://github.com/seek-oss/vanilla-extract/commit/f6d5337ae7b955add2bb4a27ffafe1ff55b1a140)]:
+  - @vanilla-extract/integration@4.0.1
+
 ## 2.0.4
 
 ### Patch Changes

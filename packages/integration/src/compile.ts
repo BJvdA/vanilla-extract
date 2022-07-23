@@ -1,14 +1,21 @@
 import { dirname, join } from 'path';
 import { promises as fs } from 'fs';
 
-import { build as esbuild, Plugin } from 'esbuild';
+import {
+  build as esbuild,
+  Plugin,
+  BuildOptions as EsbuildOptions,
+} from 'esbuild';
 
 import { cssFileFilter } from './filters';
 import { addFileScope } from './addFileScope';
+import { getPackageInfo } from './packageInfo';
 
 export const vanillaExtractFilescopePlugin = (): Plugin => ({
   name: 'vanilla-extract-filescope',
   setup(build) {
+    const packageInfo = getPackageInfo(build.initialOptions.absWorkingDir);
+
     build.onLoad({ filter: cssFileFilter }, async ({ path }) => {
       const originalSource = await fs.readFile(path, 'utf-8');
 
@@ -16,6 +23,7 @@ export const vanillaExtractFilescopePlugin = (): Plugin => ({
         source: originalSource,
         filePath: path,
         rootPath: build.initialOptions.absWorkingDir!,
+        packageName: packageInfo.name,
       });
 
       return {
@@ -27,25 +35,33 @@ export const vanillaExtractFilescopePlugin = (): Plugin => ({
   },
 });
 
-interface CompileOptions {
+export interface CompileOptions {
   filePath: string;
   cwd?: string;
-  externals?: Array<string>;
+  esbuildOptions?: Pick<
+    EsbuildOptions,
+    'plugins' | 'external' | 'define' | 'loader'
+  >;
 }
 export async function compile({
   filePath,
   cwd = process.cwd(),
-  externals = [],
+  esbuildOptions,
 }: CompileOptions) {
   const result = await esbuild({
     entryPoints: [filePath],
     metafile: true,
     bundle: true,
-    external: ['@vanilla-extract', ...externals],
+    external: ['@vanilla-extract', ...(esbuildOptions?.external ?? [])],
     platform: 'node',
     write: false,
-    plugins: [vanillaExtractFilescopePlugin()],
+    plugins: [
+      vanillaExtractFilescopePlugin(),
+      ...(esbuildOptions?.plugins ?? []),
+    ],
     absWorkingDir: cwd,
+    loader: esbuildOptions?.loader,
+    define: esbuildOptions?.define,
   });
 
   const { outputFiles, metafile } = result;
