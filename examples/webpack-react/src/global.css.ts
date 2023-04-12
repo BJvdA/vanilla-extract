@@ -1,6 +1,21 @@
-import { globalStyle } from '@vanilla-extract/css';
+import { globalStyle, globalLayer } from '@vanilla-extract/css';
+
+export const base = globalLayer('base');
+export const colors = globalLayer('colors');
+
+globalStyle('body', {
+  '@layer': {
+    [base]: {
+      background: 'white',
+    },
+  },
+});
 
 globalStyle('body, body *', {
-  all: 'unset',
-  boxSizing: 'border-box',
+  '@layer': {
+    [base]: {
+      all: 'unset',
+      boxSizing: 'border-box',
+    },
+  },
 });

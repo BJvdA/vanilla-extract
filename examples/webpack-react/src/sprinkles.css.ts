@@ -1,4 +1,5 @@
 import { defineProperties, createSprinkles } from '@vanilla-extract/sprinkles';
+import { colors } from './global.css';
 import { vars } from './vars.css';
 
 const responsiveProperties = defineProperties({
@@ -41,6 +42,7 @@ const colorModeProperties = defineProperties({
     darkMode: { '@media': '(prefers-color-scheme: dark)' },
   },
   defaultCondition: 'lightMode',
+  layer: colors,
   properties: {
     color: vars.color,
     background: vars.color,
