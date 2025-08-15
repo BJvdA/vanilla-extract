@@ -3,32 +3,26 @@ import { posix } from 'path';
 import MagicString, { Bundle } from 'magic-string';
 
 /** Generate a CSS bundle from Rollup context */
-function generateCssBundle({
-  getModuleIds,
-  getModuleInfo,
-  warn
-}) {
+function generateCssBundle(plugin) {
   const cssBundle = new Bundle();
   const extractedCssIds = new Set();
 
   // 1. identify CSS files to bundle
   const cssFiles = {};
-  for (const id of getModuleIds()) {
+  for (const id of plugin.getModuleIds()) {
     if (cssFileFilter.test(id)) {
-      cssFiles[id] = buildImportChain(id, {
-        getModuleInfo,
-        warn
-      });
+      cssFiles[id] = buildImportChain(id, plugin);
     }
   }
 
   // 2. build bundle from import order
   for (const id of sortModules(cssFiles)) {
     const {
-      importedIdResolutions
-    } = getModuleInfo(id) ?? {};
-    for (const resolution of importedIdResolutions ?? []) {
-      if (resolution.meta.css && !extractedCssIds.has(resolution.id)) {
+      importedIds
+    } = plugin.getModuleInfo(id) ?? {};
+    for (const importedId of importedIds ?? []) {
+      const resolution = plugin.getModuleInfo(importedId);
+      if (resolution !== null && resolution !== void 0 && resolution.meta.css && !extractedCssIds.has(resolution.id)) {
         extractedCssIds.add(resolution.id);
         cssBundle.addSource({
           filename: resolution.id,
@@ -46,11 +40,8 @@ function generateCssBundle({
 /** [id, order] tuple meant for ordering imports */
 
 /** Trace a file back through its importers, building an ordered list */
-function buildImportChain(id, {
-  getModuleInfo,
-  warn
-}) {
-  let mod = getModuleInfo(id);
+function buildImportChain(id, plugin) {
+  let mod = plugin.getModuleInfo(id);
   if (!mod) {
     return [];
   }
@@ -67,10 +58,10 @@ function buildImportChain(id, {
       break;
     }
     if (chain.some(([id]) => id === lastImporterId)) {
-      warn(`Circular import detected. Can’t determine ideal import order of module.\n${chain.reverse().join('\n  → ')}`);
+      plugin.warn(`Circular import detected. Can’t determine ideal import order of module.\n${chain.reverse().join('\n  → ')}`);
       break;
     }
-    mod = getModuleInfo(lastImporterId);
+    mod = plugin.getModuleInfo(lastImporterId);
     if (!mod) {
       break;
     }
@@ -187,27 +178,20 @@ function vanillaExtractPlugin({
         }
       };
     },
-    // Emit .css assets
-    moduleParsed(moduleInfo) {
-      moduleInfo.importedIdResolutions.forEach(resolution => {
-        if (resolution.meta.css && !extract) {
-          resolution.meta.assetId = this.emitFile({
-            type: 'asset',
-            name: resolution.id,
-            source: resolution.meta.css
-          });
-        }
-      });
-    },
-    // Replace .css import paths with relative paths to emitted css files
+    // Emit .css assets and replace .css import paths with relative paths to emitted css files
     renderChunk(code, chunkInfo) {
       const chunkPath = dirname(chunkInfo.fileName);
       const output = chunkInfo.imports.reduce((codeResult, importPath) => {
         const moduleInfo = this.getModuleInfo(importPath);
-        if (!(moduleInfo !== null && moduleInfo !== void 0 && moduleInfo.meta.assetId)) {
+        if (!(moduleInfo !== null && moduleInfo !== void 0 && moduleInfo.meta.css) || extract) {
           return codeResult;
         }
-        const assetPath = this.getFileName(moduleInfo === null || moduleInfo === void 0 ? void 0 : moduleInfo.meta.assetId);
+        const assetId = this.emitFile({
+          type: 'asset',
+          name: moduleInfo.id,
+          source: moduleInfo.meta.css
+        });
+        const assetPath = this.getFileName(assetId);
         const relativeAssetPath = `./${normalize(relative(chunkPath, assetPath))}`;
         return codeResult.replace(importPath, relativeAssetPath);
       }, code);
