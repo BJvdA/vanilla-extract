@@ -4,13 +4,15 @@ import type { Adapter } from '@vanilla-extract/css';
 import { transformCss } from '@vanilla-extract/css/transformCss';
 import type { ModuleNode, UserConfig as ViteUserConfig } from 'vite';
 
-import type { IdentifierOption } from './types';
-import { cssFileFilter } from './filters';
-import { getPackageInfo } from './packageInfo';
-import { transform } from './transform';
-import { normalizePath } from './addFileScope';
+import {
+  cssFileFilter,
+  transform,
+  normalizePath,
+  getPackageInfo,
+  serializeVanillaModule,
+  type IdentifierOption,
+} from '@vanilla-extract/integration';
 import { lock } from './lock';
-import { serializeVanillaModule } from './processVanillaFile';
 
 type Css = Parameters<Adapter['appendCss']>[0];
 type Composition = Parameters<Adapter['registerComposition']>[0];
@@ -91,25 +93,44 @@ const createViteServer = async ({
   root,
   identifiers,
   viteConfig,
+  enableFileWatcher = true,
 }: Required<
   Pick<CreateCompilerOptions, 'root' | 'identifiers' | 'viteConfig'>
->) => {
+> &
+  Pick<CreateCompilerOptions, 'enableFileWatcher'>) => {
   const pkg = getPackageInfo(root);
   const vite = await import('vite');
 
   const server = await vite.createServer({
     ...viteConfig,
+    // The vite-node server should not rewrite imported asset URLs within VE stylesheets.
+    // Doing so interferes with Vite's resolution and bundling of these assets at build time.
+    base: undefined,
     configFile: false,
     root,
     server: {
       hmr: false,
+      watch: enableFileWatcher ? undefined : null,
     },
     logLevel: 'silent',
     optimizeDeps: {
-      disabled: true,
+      noDiscovery: true,
+    },
+    build: {
+      dynamicImportVarsOptions: {
+        // Temporary workaround for https://github.com/vitejs/vite/issues/19245.
+        // Shouldn't affect functionality as it's equivalent to the default value.
+        // Can be removed once https://github.com/vitejs/vite/pull/19247 is released.
+        exclude: [/node_modules/],
+      },
     },
     ssr: {
       noExternal: true,
+      // `cssesc` is CJS-only, so we need to mark it as external as Vite's transform pipeline
+      // can't handle CJS during dev-time.
+      // See https://github.com/withastro/astro/blob/0879cc2ce7e15a2e7330c68d6667d9a2edea52ab/packages/astro/src/core/create-vite.ts#L86
+      // and https://github.com/withastro/astro/issues/11395
+      external: ['cssesc'],
     },
     plugins: [
       {
@@ -176,9 +197,11 @@ const createViteServer = async ({
     },
   });
 
-  server.watcher.on('change', (filePath) => {
-    runner.moduleCache.invalidateDepTree([filePath]);
-  });
+  if (enableFileWatcher) {
+    server.watcher.on('change', (filePath) => {
+      runner.moduleCache.invalidateDepTree([filePath]);
+    });
+  }
 
   return {
     server,
@@ -217,6 +240,7 @@ export interface Compiler {
   ): Promise<{ source: string; watchFiles: Set<string> }>;
   getCssForFile(virtualCssFilePath: string): { filePath: string; css: string };
   close(): Promise<void>;
+  getAllCss(): string;
 }
 
 interface ProcessedVanillaFile {
@@ -226,6 +250,13 @@ interface ProcessedVanillaFile {
 
 export interface CreateCompilerOptions {
   root: string;
+  /**
+   * By default, the compiler sets up its own file watcher. This option allows you to disable it if
+   * necessary, such as during a production build.
+   *
+   * @default true
+   */
+  enableFileWatcher?: boolean;
   cssImportSpecifier?: (filePath: string) => string;
   identifiers?: IdentifierOption;
   viteConfig?: ViteUserConfig;
@@ -239,6 +270,7 @@ export const createCompiler = ({
   identifiers = 'debug',
   cssImportSpecifier = (filePath) => filePath + '.vanilla.css',
   viteConfig,
+  enableFileWatcher,
   viteResolve,
   vitePlugins,
 }: CreateCompilerOptions): Compiler => {
@@ -254,6 +286,7 @@ export const createCompiler = ({
       resolve: viteResolve,
       plugins: vitePlugins,
     },
+    enableFileWatcher,
   });
 
   const processVanillaFileCache = new Map<
@@ -370,8 +403,8 @@ export const createCompiler = ({
             throw new Error(`Can't find ModuleNode for ${filePath}`);
           }
 
-          const cssImports = [];
-          const orderedComposedClassLists = [];
+          const cssImports: string[] = [];
+          const orderedComposedClassLists: Composition[] = [];
 
           const scanModule = createModuleScanner();
           const { cssDeps, watchFiles } = scanModule(moduleNode);
@@ -466,6 +499,17 @@ export const createCompiler = ({
       const { server } = await vitePromise;
 
       await server.close();
+    },
+    getAllCss() {
+      let allCss = '';
+
+      for (const { css } of cssCache.values()) {
+        if (css) {
+          allCss += css + '\n';
+        }
+      }
+
+      return allCss;
     },
   };
 };

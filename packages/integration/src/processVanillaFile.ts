@@ -1,4 +1,4 @@
-import { FileScope, Adapter } from '@vanilla-extract/css';
+import type { FileScope, Adapter } from '@vanilla-extract/css';
 import { transformCss } from '@vanilla-extract/css/transformCss';
 import evalCode from 'eval';
 import { stringify } from 'javascript-stringify';
@@ -69,7 +69,7 @@ export async function processVanillaFile({
   outputCss = true,
   identOption = process.env.NODE_ENV === 'production' ? 'short' : 'debug',
   serializeVirtualCssPath,
-}: ProcessVanillaFileOptions) {
+}: ProcessVanillaFileOptions): Promise<string> {
   type Css = Parameters<Adapter['appendCss']>[0];
   type Composition = Parameters<Adapter['registerComposition']>[0];
 
@@ -336,7 +336,7 @@ export function serializeVanillaModule(
   cssImports: Array<string>,
   exports: Record<string, unknown>,
   unusedCompositionRegex: RegExp | null,
-) {
+): string {
   const functionSerializationImports = new Set<string>();
   const exportLookup = new Map(
     Object.entries(exports).map(([key, value]) => [

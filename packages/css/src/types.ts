@@ -3,6 +3,10 @@ import type { AtRule, Properties } from 'csstype';
 
 import type { SimplePseudos } from './simplePseudos';
 
+export type Resolve<T> = {
+  [Key in keyof T]: T[Key];
+} & {};
+
 // csstype is yet to ship container property types as they are not in
 // the output MDN spec files yet. Remove this once that's done.
 // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Container_Queries
@@ -23,7 +27,7 @@ export type CSSProperties = {
 };
 
 export interface CSSKeyframes {
-  [time: string]: CSSProperties;
+  [time: string]: CSSPropertiesWithVars;
 }
 
 export type CSSPropertiesWithVars = CSSProperties & {
@@ -58,18 +62,16 @@ interface AllQueries<StyleType>
 export type WithQueries<StyleType> = StyleType & AllQueries<StyleType>;
 
 interface SelectorMap {
-  [selector: string]: CSSPropertiesWithVars &
-    WithQueries<CSSPropertiesWithVars>;
+  [selector: string]: WithQueries<CSSPropertiesWithVars>;
 }
 
 export interface StyleWithSelectors extends CSSPropertiesAndPseudos {
   selectors?: SelectorMap;
 }
 
-export type StyleRule = StyleWithSelectors & WithQueries<StyleWithSelectors>;
+export type StyleRule = WithQueries<StyleWithSelectors>;
 
-export type GlobalStyleRule = CSSPropertiesWithVars &
-  WithQueries<CSSPropertiesWithVars>;
+export type GlobalStyleRule = WithQueries<CSSPropertiesWithVars>;
 
 export type GlobalFontFaceRule = Omit<AtRule.FontFaceFallback, 'src'> &
   Required<Pick<AtRule.FontFaceFallback, 'src'>>;
@@ -103,12 +105,19 @@ export type CSSLayerDeclaration = {
   name: string;
 };
 
+export type CSSPropertyBlock = {
+  type: 'property';
+  name: string;
+  rule: AtRule.Property;
+};
+
 export type CSS =
   | CSSStyleBlock
   | CSSFontFaceBlock
   | CSSKeyframesBlock
   | CSSSelectorBlock
-  | CSSLayerDeclaration;
+  | CSSLayerDeclaration
+  | CSSPropertyBlock;
 
 export type FileScope = {
   packageName?: string;
@@ -155,3 +164,28 @@ export type ThemeVars<ThemeContract extends NullableTokens> = MapLeafNodes<
 export type ClassNames = string | Array<ClassNames>;
 
 export type ComplexStyleRule = StyleRule | Array<StyleRule | ClassNames>;
+
+type _PropertySyntax =
+  | '<angle>'
+  | '<color>'
+  | '<custom-ident>'
+  | '<image>'
+  | '<integer>'
+  | '<length-percentage>'
+  | '<length>'
+  | '<number>'
+  | '<percentage>'
+  | '<resolution>'
+  | '<string>'
+  | '<time>'
+  | '<transform-function>'
+  | '<transform-list>'
+  | '<url>'
+  | '*';
+
+/** Suggests elements of the provided string union `Suggestions` while still accepting any string */
+type LooseAutocomplete<Suggestions extends string> =
+  | Suggestions
+  | Omit<string, Suggestions>;
+
+export type PropertySyntax = LooseAutocomplete<_PropertySyntax>;

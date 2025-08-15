@@ -1,5 +1,160 @@
 # @vanilla-extract/css
 
+## 1.17.4
+
+### Patch Changes
+
+- [#1610](https://github.com/vanilla-extract-css/vanilla-extract/pull/1610) [`2b0be1b`](https://github.com/vanilla-extract-css/vanilla-extract/commit/2b0be1be15dcdc3df3248305fe80e566cce794cd) Thanks [@askoufis](https://github.com/askoufis)! - Revert "Improve ESM package entrypoints (#1597)" to fix `Named export not found` error when importing ESM entrypoints
+
+- Updated dependencies [[`2b0be1b`](https://github.com/vanilla-extract-css/vanilla-extract/commit/2b0be1be15dcdc3df3248305fe80e566cce794cd)]:
+  - @vanilla-extract/private@1.0.9
+
+## 1.17.3
+
+### Patch Changes
+
+- [#1596](https://github.com/vanilla-extract-css/vanilla-extract/pull/1596) [`f0533be`](https://github.com/vanilla-extract-css/vanilla-extract/commit/f0533be939e6835ae961e3dd10b764c0c052ee75) Thanks [@cqh963852](https://github.com/cqh963852)! - `addFunctionSerializer`: Fix `args` type to support arrays of primitive values
+
+- [#1597](https://github.com/vanilla-extract-css/vanilla-extract/pull/1597) [`a7fccf8`](https://github.com/vanilla-extract-css/vanilla-extract/commit/a7fccf8a2626d610c060e095e0b9fb48a4ca5c9e) Thanks [@drwpow](https://github.com/drwpow)! - Fix ESM import path
+
+- Updated dependencies [[`9d16de8`](https://github.com/vanilla-extract-css/vanilla-extract/commit/9d16de85b149b531f2e049e8d93bdb862667ff1f), [`a7fccf8`](https://github.com/vanilla-extract-css/vanilla-extract/commit/a7fccf8a2626d610c060e095e0b9fb48a4ca5c9e)]:
+  - @vanilla-extract/private@1.0.8
+
+## 1.17.2
+
+### Patch Changes
+
+- [#1557](https://github.com/vanilla-extract-css/vanilla-extract/pull/1557) [`134117d`](https://github.com/vanilla-extract-css/vanilla-extract/commit/134117d32e25d92edc24c8c863d757294d7b5df8) Thanks [@askoufis](https://github.com/askoufis)! - `css`: Improve type-checking performance of string literal types that include CSS variables
+
+- [#1560](https://github.com/vanilla-extract-css/vanilla-extract/pull/1560) [`c66be53`](https://github.com/vanilla-extract-css/vanilla-extract/commit/c66be53d600802b2922da1d6034e2a5ff3fbbcae) Thanks [@andjsrk](https://github.com/andjsrk)! - Remove unnecessary intersections in a few types
+
+- Updated dependencies [[`134117d`](https://github.com/vanilla-extract-css/vanilla-extract/commit/134117d32e25d92edc24c8c863d757294d7b5df8)]:
+  - @vanilla-extract/private@1.0.7
+
+## 1.17.1
+
+### Patch Changes
+
+- [#1533](https://github.com/vanilla-extract-css/vanilla-extract/pull/1533) [`c432ff3`](https://github.com/vanilla-extract-css/vanilla-extract/commit/c432ff33a8aead2c94fa6a4fcc9fcb1d7990427d) Thanks [@askoufis](https://github.com/askoufis)! - Fixes a bug where `@container` queries inside `selectors` were not being generated
+
+## 1.17.0
+
+### Minor Changes
+
+- [#1092](https://github.com/vanilla-extract-css/vanilla-extract/pull/1092) [`fd673f6`](https://github.com/vanilla-extract-css/vanilla-extract/commit/fd673f658da3b0019d19a0c7d6d9208d1685ff5b) Thanks [@z4o4z](https://github.com/z4o4z)! - `keyframes`: Add support for a `vars` property to steps within `keyframes` declarations
+
+  Example usage:
+
+  ```ts
+  import {
+    createVar,
+    keyframes
+  } from '@vanilla-extract/css';
+
+  const angle = createVar({
+    syntax: '<angle>',
+    inherits: false,
+    initialValue: '0deg'
+  });
+
+  export const angleKeyframes = keyframes({
+    '0%': {
+      vars: {
+        [angle]: '0deg'
+      }
+    },
+    '100%': {
+      vars: {
+        [angle]: '360deg'
+      }
+    }
+  });
+  ```
+
+- [#1512](https://github.com/vanilla-extract-css/vanilla-extract/pull/1512) [`4abfc0b`](https://github.com/vanilla-extract-css/vanilla-extract/commit/4abfc0b47c675f9a7bfdb4c3316b1c62d2b8e558) Thanks [@askoufis](https://github.com/askoufis)! - `createTheme`, `createGlobalTheme`: Add support for assigning themes to a layer
+
+  Themes can now be assigned to a layer by name using the `@layer` key at the top-level of the theme definition.
+
+  **EXAMPLE USAGE**:
+
+  ```ts
+  // themes.css.ts
+  import {
+    createTheme,
+    createGlobalTheme,
+    layer
+  } from '@vanilla-extract/css';
+
+  export const themeLayer = layer();
+
+  export const [themeA, vars] = createTheme({
+    '@layer': themeLayer,
+    color: {
+      brand: 'blue'
+    },
+    font: {
+      body: 'arial'
+    }
+  });
+
+  export const vars2 = createGlobalTheme(':root', {
+    '@layer': themeLayer,
+    space: {
+      small: '10px',
+      large: '20px'
+    }
+  });
+  ```
+
+  This will generate the following CSS:
+
+  ```css
+  @layer themes_themeLayer__1k6oxph0;
+  @layer themes_themeLayer__1k6oxph0 {
+    .themes_themeA__1k6oxph1 {
+      --color-brand__1k6oxph2: blue;
+      --font-body__1k6oxph3: arial;
+    }
+
+    :root {
+      --space-small__z05zdf1: 10px;
+      --space-large__z05zdf2: 20px;
+    }
+  }
+  ```
+
+- [#1092](https://github.com/vanilla-extract-css/vanilla-extract/pull/1092) [`fd673f6`](https://github.com/vanilla-extract-css/vanilla-extract/commit/fd673f658da3b0019d19a0c7d6d9208d1685ff5b) Thanks [@z4o4z](https://github.com/z4o4z)! - `createVar`: Add support for defining [`@property`] rules
+
+  Example usage:
+
+  ```ts
+  import { createVar } from '@vanilla-extract/css';
+
+  export const myVar = createVar({
+    syntax: '<number>',
+    inherits: false,
+    initialValue: '0.5'
+  });
+  ```
+
+  This will generate the following CSS:
+
+  ```css
+  @property --myVar__jteyb14 {
+    syntax: '<number>';
+    inherits: false;
+    initial-value: 0.5;
+  }
+  ```
+
+  [`@property`]: https://developer.mozilla.org/en-US/docs/Web/CSS/@property
+
+## 1.16.1
+
+### Patch Changes
+
+- [#1505](https://github.com/vanilla-extract-css/vanilla-extract/pull/1505) [`103ce57`](https://github.com/vanilla-extract-css/vanilla-extract/commit/103ce57c98bf632a56fab1d71ae44039a77f5291) Thanks [@askoufis](https://github.com/askoufis)! - Fixes a bug that caused invalid selectors to be generated when adjacent classnames contained a substring equal to another local classname
+
 ## 1.16.0
 
 ### Minor Changes

@@ -1,4 +1,9 @@
-import { types as t, PluginObj, PluginPass, NodePath } from '@babel/core';
+import {
+  types as t,
+  type PluginObj,
+  type PluginPass,
+  type NodePath,
+} from '@babel/core';
 
 const packageIdentifiers = new Set([
   '@vanilla-extract/css',
@@ -31,7 +36,11 @@ const debuggableFunctionConfig = {
     maxParams: 2,
   },
   createVar: {
-    maxParams: 1,
+    maxParams: 2,
+    hasDebugId: ({ arguments: args }) => {
+      const previousArg = args[args.length - 1];
+      return t.isStringLiteral(previousArg) || t.isTemplateLiteral(previousArg);
+    },
   },
   recipe: {
     maxParams: 2,

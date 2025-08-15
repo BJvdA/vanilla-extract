@@ -1,5 +1,23 @@
 # @vanilla-extract/babel-plugin-debug-ids
 
+## 1.2.2
+
+### Patch Changes
+
+- [#1610](https://github.com/vanilla-extract-css/vanilla-extract/pull/1610) [`2b0be1b`](https://github.com/vanilla-extract-css/vanilla-extract/commit/2b0be1be15dcdc3df3248305fe80e566cce794cd) Thanks [@askoufis](https://github.com/askoufis)! - Revert "Improve ESM package entrypoints (#1597)" to fix `Named export not found` error when importing ESM entrypoints
+
+## 1.2.1
+
+### Patch Changes
+
+- [#1597](https://github.com/vanilla-extract-css/vanilla-extract/pull/1597) [`a7fccf8`](https://github.com/vanilla-extract-css/vanilla-extract/commit/a7fccf8a2626d610c060e095e0b9fb48a4ca5c9e) Thanks [@drwpow](https://github.com/drwpow)! - Fix ESM import path
+
+## 1.2.0
+
+### Minor Changes
+
+- [#1092](https://github.com/vanilla-extract-css/vanilla-extract/pull/1092) [`fd673f6`](https://github.com/vanilla-extract-css/vanilla-extract/commit/fd673f658da3b0019d19a0c7d6d9208d1685ff5b) Thanks [@z4o4z](https://github.com/z4o4z)! - Add support for `createVar` calls that declare `@property` rules
+
 ## 1.1.0
 
 ### Minor Changes

@@ -9,16 +9,16 @@ import type {
   TransformResult,
   UserConfig,
 } from 'vite';
+import { type Compiler, createCompiler } from '@vanilla-extract/compiler';
 import {
   cssFileFilter,
-  IdentifierOption,
+  type IdentifierOption,
   getPackageInfo,
   transform,
-  type Compiler,
-  createCompiler,
   normalizePath,
 } from '@vanilla-extract/integration';
 
+const PLUGIN_NAMESPACE = 'vite-plugin-vanilla-extract';
 const virtualExtCss = '.vanilla.css';
 
 const isVirtualId = (id: string) => id.endsWith(virtualExtCss);
@@ -26,35 +26,48 @@ const fileIdToVirtualId = (id: string) => `${id}${virtualExtCss}`;
 const virtualIdToFileId = (virtualId: string) =>
   virtualId.slice(0, -virtualExtCss.length);
 
-const removeIncompatiblePlugins = (plugin: PluginOption) =>
-  typeof plugin === 'object' &&
-  plugin !== null &&
-  'name' in plugin &&
-  // Prevent an infinite loop where the compiler creates a new instance of the plugin,
-  // which creates a new compiler, which creates a new instance of the plugin, etc.
-  plugin.name !== 'vanilla-extract' &&
-  // Skip Remix because it throws an error if it's not loaded with a config file.
-  // If it _is_ loaded with a config file, it will create an infinite loop because it
-  // also has a child compiler which uses the same mechanism to load the config file.
-  // https://github.com/remix-run/remix/pull/7990#issuecomment-1809356626
-  // Additionally, some internal Remix plugins rely on a `ctx` object to be initialized by
-  // the main Remix plugin, and may not function correctly without it. To address this, we
-  // filter out all Remix-related plugins.
-  !plugin.name.startsWith('remix');
+const isPluginObject = (plugin: PluginOption): plugin is Plugin =>
+  typeof plugin === 'object' && plugin !== null && 'name' in plugin;
+
+type PluginFilter = (filterProps: {
+  /** The name of the plugin */
+  name: string;
+  /**
+   * The `mode` vite is running in.
+   * @see https://vite.dev/guide/env-and-mode.html#modes
+   */
+  mode: string;
+}) => boolean;
 
 interface Options {
   identifiers?: IdentifierOption;
-  unstable_mode?: 'transform' | 'emitCss';
+  unstable_pluginFilter?: PluginFilter;
+  unstable_mode?: 'transform' | 'emitCss' | 'inlineCssInDev';
 }
+
+// Plugins that we know are compatible with the `vite-node` compiler
+// and don't need to be filtered out.
+const COMPATIBLE_PLUGINS = ['vite-tsconfig-paths'];
+
+const defaultPluginFilter: PluginFilter = ({ name }) =>
+  COMPATIBLE_PLUGINS.includes(name);
+
+const withUserPluginFilter =
+  ({ mode, pluginFilter }: { mode: string; pluginFilter: PluginFilter }) =>
+  (plugin: Plugin) =>
+    pluginFilter({ name: plugin.name, mode });
+
 export function vanillaExtractPlugin({
   identifiers,
-  unstable_mode: mode = 'emitCss',
-}: Options = {}): Plugin {
+  unstable_pluginFilter: pluginFilter = defaultPluginFilter,
+  unstable_mode = 'emitCss',
+}: Options = {}): Plugin[] {
   let config: ResolvedConfig;
   let configEnv: ConfigEnv;
   let server: ViteDevServer;
   let packageName: string;
   let compiler: Compiler | undefined;
+  let isBuild: boolean;
   const vitePromise = import('vite');
 
   const getIdentOption = () =>
@@ -96,159 +109,190 @@ export function vanillaExtractPlugin({
     }
   }
 
-  return {
-    name: 'vanilla-extract',
-    configureServer(_server) {
-      server = _server;
-    },
-    config(_userConfig, _configEnv) {
-      configEnv = _configEnv;
-      return {
-        ssr: {
-          external: [
-            '@vanilla-extract/css',
-            '@vanilla-extract/css/fileScope',
-            '@vanilla-extract/css/adapter',
-          ],
-        },
-      };
-    },
-    async configResolved(_resolvedConfig) {
-      config = _resolvedConfig;
-      packageName = getPackageInfo(config.root).name;
-    },
-    async buildStart() {
-      // Ensure we re-use the compiler instance between builds, e.g. in watch mode
-      if (mode !== 'transform' && !compiler) {
-        const { loadConfigFromFile } = await vitePromise;
+  return [
+    {
+      name: `${PLUGIN_NAMESPACE}-inline-dev-css`,
+      apply: (_, { command }) =>
+        command === 'serve' && unstable_mode === 'inlineCssInDev',
+      transformIndexHtml: async () => {
+        const allCss = compiler?.getAllCss();
 
-        let configForViteCompiler: UserConfig | undefined;
+        if (!allCss) {
+          return [];
+        }
 
-        // The user has a vite config file
-        if (config.configFile) {
-          const configFile = await loadConfigFromFile(
-            {
-              command: config.command,
-              mode: config.mode,
-              isSsrBuild: configEnv.isSsrBuild,
+        return [
+          {
+            tag: 'style',
+            children: allCss,
+            attrs: {
+              type: 'text/css',
+              'data-vanilla-extract-inline-dev-css': true,
             },
-            config.configFile,
+            injectTo: 'head-prepend',
+          },
+        ];
+      },
+    },
+    {
+      name: PLUGIN_NAMESPACE,
+      configureServer(_server) {
+        server = _server;
+      },
+      config(_userConfig, _configEnv) {
+        configEnv = _configEnv;
+        return {
+          ssr: {
+            external: [
+              '@vanilla-extract/css',
+              '@vanilla-extract/css/fileScope',
+              '@vanilla-extract/css/adapter',
+            ],
+          },
+        };
+      },
+      async configResolved(_resolvedConfig) {
+        config = _resolvedConfig;
+        isBuild = config.command === 'build' && !config.build.watch;
+        packageName = getPackageInfo(config.root).name;
+      },
+      async buildStart() {
+        // Ensure we re-use the compiler instance between builds, e.g. in watch mode
+        if (unstable_mode !== 'transform' && !compiler) {
+          const { loadConfigFromFile } = await vitePromise;
+
+          let configForViteCompiler: UserConfig | undefined;
+
+          // The user has a vite config file
+          if (config.configFile) {
+            const configFile = await loadConfigFromFile(
+              {
+                command: config.command,
+                mode: config.mode,
+                isSsrBuild: configEnv.isSsrBuild,
+              },
+              config.configFile,
+            );
+
+            configForViteCompiler = configFile?.config;
+          }
+          // The user is using a vite-based framework that has a custom config file
+          else {
+            configForViteCompiler = config.inlineConfig;
+          }
+
+          const viteConfig = {
+            ...configForViteCompiler,
+            plugins: configForViteCompiler?.plugins
+              ?.flat()
+              .filter(isPluginObject)
+              .filter(
+                withUserPluginFilter({ mode: config.mode, pluginFilter }),
+              ),
+          };
+
+          compiler = createCompiler({
+            root: config.root,
+            identifiers: getIdentOption(),
+            cssImportSpecifier: fileIdToVirtualId,
+            viteConfig,
+            enableFileWatcher: !isBuild,
+          });
+        }
+      },
+      buildEnd() {
+        // When using the rollup watcher, we don't want to close the compiler after every build.
+        // Instead, we close it when the watcher is closed via the closeWatcher hook.
+        if (!config.build.watch) {
+          compiler?.close();
+        }
+      },
+      closeWatcher() {
+        return compiler?.close();
+      },
+      async transform(code, id, options = {}) {
+        const [validId] = id.split('?');
+
+        if (!cssFileFilter.test(validId)) {
+          return null;
+        }
+
+        const identOption = getIdentOption();
+
+        if (unstable_mode === 'transform') {
+          return transform({
+            source: code,
+            filePath: normalizePath(validId),
+            rootPath: config.root,
+            packageName,
+            identOption,
+          });
+        }
+
+        if (compiler) {
+          const absoluteId = getAbsoluteId(validId);
+
+          const { source, watchFiles } = await compiler.processVanillaFile(
+            absoluteId,
+            { outputCss: true },
           );
+          const result: TransformResult = {
+            code: source,
+            map: { mappings: '' },
+          };
 
-          configForViteCompiler = configFile?.config;
-        }
-        // The user is using a vite-based framework that has a custom config file
-        else {
-          configForViteCompiler = config.inlineConfig;
-        }
+          // We don't need to watch files or invalidate modules in build mode or during SSR
+          if (isBuild || options.ssr) {
+            return result;
+          }
 
-        const viteConfig = {
-          ...configForViteCompiler,
-          plugins: configForViteCompiler?.plugins
-            ?.flat()
-            .filter(removeIncompatiblePlugins),
-        };
+          for (const file of watchFiles) {
+            if (
+              !file.includes('node_modules') &&
+              normalizePath(file) !== absoluteId
+            ) {
+              this.addWatchFile(file);
+            }
 
-        compiler = createCompiler({
-          root: config.root,
-          identifiers: getIdentOption(),
-          cssImportSpecifier: fileIdToVirtualId,
-          viteConfig,
-        });
-      }
-    },
-    buildEnd() {
-      // When using the rollup watcher, we don't want to close the compiler after every build.
-      // Instead, we close it when the watcher is closed via the closeWatcher hook.
-      if (!config.build.watch) {
-        compiler?.close();
-      }
-    },
-    closeWatcher() {
-      return compiler?.close();
-    },
-    async transform(code, id) {
-      const [validId] = id.split('?');
+            // We have to invalidate the virtual module & deps, not the real one we just transformed
+            // The deps have to be invalidated in case one of them changing was the trigger causing
+            // the current transformation
+            if (cssFileFilter.test(file)) {
+              invalidateModule(fileIdToVirtualId(file));
+            }
+          }
 
-      if (!cssFileFilter.test(validId)) {
-        return null;
-      }
-
-      const identOption = getIdentOption();
-
-      if (mode === 'transform') {
-        return transform({
-          source: code,
-          filePath: normalizePath(validId),
-          rootPath: config.root,
-          packageName,
-          identOption,
-        });
-      }
-
-      if (compiler) {
-        const absoluteId = getAbsoluteId(validId);
-
-        const { source, watchFiles } = await compiler.processVanillaFile(
-          absoluteId,
-          { outputCss: true },
-        );
-        const result: TransformResult = {
-          code: source,
-          map: { mappings: '' },
-        };
-
-        // We don't need to watch files in build mode
-        if (config.command === 'build' && !config.build.watch) {
           return result;
         }
+      },
+      resolveId(source) {
+        const [validId, query] = source.split('?');
 
-        for (const file of watchFiles) {
-          if (
-            !file.includes('node_modules') &&
-            normalizePath(file) !== absoluteId
-          ) {
-            this.addWatchFile(file);
-          }
+        if (!isVirtualId(validId)) return;
 
-          // We have to invalidate the virtual module & deps, not the real one we just transformed
-          // The deps have to be invalidated in case one of them changing was the trigger causing
-          // the current transformation
-          if (cssFileFilter.test(file)) {
-            invalidateModule(fileIdToVirtualId(file));
-          }
+        const absoluteId = getAbsoluteId(validId);
+
+        if (
+          // We should always have CSS for a file here.
+          // The only valid scenario for a missing one is if someone had written
+          // a file in their app using the .vanilla.js/.vanilla.css extension
+          compiler?.getCssForFile(virtualIdToFileId(absoluteId))
+        ) {
+          // Keep the original query string for HMR.
+          return absoluteId + (query ? `?${query}` : '');
         }
+      },
+      load(id) {
+        const [validId] = id.split('?');
 
-        return result;
-      }
+        if (!isVirtualId(validId) || !compiler) return;
+
+        const absoluteId = getAbsoluteId(validId);
+
+        const { css } = compiler.getCssForFile(virtualIdToFileId(absoluteId));
+
+        return css;
+      },
     },
-    resolveId(source) {
-      const [validId, query] = source.split('?');
-
-      if (!isVirtualId(validId)) return;
-
-      const absoluteId = getAbsoluteId(validId);
-
-      if (
-        // We should always have CSS for a file here.
-        // The only valid scenario for a missing one is if someone had written
-        // a file in their app using the .vanilla.js/.vanilla.css extension
-        compiler?.getCssForFile(virtualIdToFileId(absoluteId))
-      ) {
-        // Keep the original query string for HMR.
-        return absoluteId + (query ? `?${query}` : '');
-      }
-    },
-    load(id) {
-      const [validId] = id.split('?');
-
-      if (!isVirtualId(validId) || !compiler) return;
-
-      const absoluteId = getAbsoluteId(validId);
-
-      const { css } = compiler.getCssForFile(virtualIdToFileId(absoluteId));
-
-      return css;
-    },
-  };
+  ];
 }

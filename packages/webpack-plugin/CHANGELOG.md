@@ -1,5 +1,64 @@
 # @vanilla-extract/webpack-plugin
 
+## 2.3.22
+
+### Patch Changes
+
+- [#1610](https://github.com/vanilla-extract-css/vanilla-extract/pull/1610) [`2b0be1b`](https://github.com/vanilla-extract-css/vanilla-extract/commit/2b0be1be15dcdc3df3248305fe80e566cce794cd) Thanks [@askoufis](https://github.com/askoufis)! - Revert "Improve ESM package entrypoints (#1597)" to fix `Named export not found` error when importing ESM entrypoints
+
+- Updated dependencies []:
+  - @vanilla-extract/integration@8.0.4
+
+## 2.3.21
+
+### Patch Changes
+
+- [#1602](https://github.com/vanilla-extract-css/vanilla-extract/pull/1602) [`7a78ebe`](https://github.com/vanilla-extract-css/vanilla-extract/commit/7a78ebeaad015d072664206cdbe59642399b405b) Thanks [@Pnlvfx](https://github.com/Pnlvfx)! - Fix `require is not defined` error in ESM bundles by calling `createRequire`
+
+## 2.3.20
+
+### Patch Changes
+
+- [#1597](https://github.com/vanilla-extract-css/vanilla-extract/pull/1597) [`a7fccf8`](https://github.com/vanilla-extract-css/vanilla-extract/commit/a7fccf8a2626d610c060e095e0b9fb48a4ca5c9e) Thanks [@drwpow](https://github.com/drwpow)! - Fix ESM import path
+
+- Updated dependencies []:
+  - @vanilla-extract/integration@8.0.3
+
+## 2.3.19
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @vanilla-extract/integration@8.0.2
+
+## 2.3.18
+
+### Patch Changes
+
+- Updated dependencies [[`965fd03`](https://github.com/vanilla-extract-css/vanilla-extract/commit/965fd03ff26dd324ec24734aa7700f1fe89bd483)]:
+  - @vanilla-extract/integration@8.0.1
+
+## 2.3.17
+
+### Patch Changes
+
+- Updated dependencies [[`5f66abb`](https://github.com/vanilla-extract-css/vanilla-extract/commit/5f66abbd607e76d491bbb7b9bfe9c64c882a53e8), [`a8248be`](https://github.com/vanilla-extract-css/vanilla-extract/commit/a8248befac51aa51d771b9b22a46209b1fd1e3b3), [`ec0b024`](https://github.com/vanilla-extract-css/vanilla-extract/commit/ec0b024fd19c133c233445f9e860626d104f9d97), [`a8248be`](https://github.com/vanilla-extract-css/vanilla-extract/commit/a8248befac51aa51d771b9b22a46209b1fd1e3b3)]:
+  - @vanilla-extract/integration@8.0.0
+
+## 2.3.16
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @vanilla-extract/integration@7.1.12
+
+## 2.3.15
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @vanilla-extract/integration@7.1.11
+
 ## 2.3.14
 
 ### Patch Changes

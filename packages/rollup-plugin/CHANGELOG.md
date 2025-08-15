@@ -1,5 +1,81 @@
 # @vanilla-extract/rollup-plugin
 
+## 1.4.1
+
+### Patch Changes
+
+- [#1627](https://github.com/vanilla-extract-css/vanilla-extract/pull/1627) [`2fcf8e8`](https://github.com/vanilla-extract-css/vanilla-extract/commit/2fcf8e89a3f09782bf9fbbf6e51c01dd4b1a2017) Thanks [@stipsan](https://github.com/stipsan)! - Include content in CSS sourcemap when bundling with the `extract` option
+
+## 1.4.0
+
+### Minor Changes
+
+- [#1604](https://github.com/vanilla-extract-css/vanilla-extract/pull/1604) [`4a020ba`](https://github.com/vanilla-extract-css/vanilla-extract/commit/4a020ba48941e438fc6bdcfb472da50316db993d) Thanks [@drwpow](https://github.com/drwpow)! - Add "extract" option which bundles CSS into one bundle. Removes .css imports.
+
+  **EXAMPLE USAGE**:
+
+  ```ts
+  vanillaExtractPlugin({
+    extract: {
+      name: 'bundle.css',
+      sourcemap: false
+    }
+  });
+  ```
+
+## 1.3.17
+
+### Patch Changes
+
+- [#1610](https://github.com/vanilla-extract-css/vanilla-extract/pull/1610) [`2b0be1b`](https://github.com/vanilla-extract-css/vanilla-extract/commit/2b0be1be15dcdc3df3248305fe80e566cce794cd) Thanks [@askoufis](https://github.com/askoufis)! - Revert "Improve ESM package entrypoints (#1597)" to fix `Named export not found` error when importing ESM entrypoints
+
+- Updated dependencies []:
+  - @vanilla-extract/integration@8.0.4
+
+## 1.3.16
+
+### Patch Changes
+
+- [#1597](https://github.com/vanilla-extract-css/vanilla-extract/pull/1597) [`a7fccf8`](https://github.com/vanilla-extract-css/vanilla-extract/commit/a7fccf8a2626d610c060e095e0b9fb48a4ca5c9e) Thanks [@drwpow](https://github.com/drwpow)! - Fix ESM import path
+
+- Updated dependencies []:
+  - @vanilla-extract/integration@8.0.3
+
+## 1.3.15
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @vanilla-extract/integration@8.0.2
+
+## 1.3.14
+
+### Patch Changes
+
+- Updated dependencies [[`965fd03`](https://github.com/vanilla-extract-css/vanilla-extract/commit/965fd03ff26dd324ec24734aa7700f1fe89bd483)]:
+  - @vanilla-extract/integration@8.0.1
+
+## 1.3.13
+
+### Patch Changes
+
+- Updated dependencies [[`5f66abb`](https://github.com/vanilla-extract-css/vanilla-extract/commit/5f66abbd607e76d491bbb7b9bfe9c64c882a53e8), [`a8248be`](https://github.com/vanilla-extract-css/vanilla-extract/commit/a8248befac51aa51d771b9b22a46209b1fd1e3b3), [`ec0b024`](https://github.com/vanilla-extract-css/vanilla-extract/commit/ec0b024fd19c133c233445f9e860626d104f9d97), [`a8248be`](https://github.com/vanilla-extract-css/vanilla-extract/commit/a8248befac51aa51d771b9b22a46209b1fd1e3b3)]:
+  - @vanilla-extract/integration@8.0.0
+
+## 1.3.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @vanilla-extract/integration@7.1.12
+
+## 1.3.11
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @vanilla-extract/integration@7.1.11
+
 ## 1.3.10
 
 ### Patch Changes

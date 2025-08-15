@@ -13,6 +13,7 @@ import type {
   CSSSelectorBlock,
   Composition,
   WithQueries,
+  CSSPropertyBlock,
 } from './types';
 import { markCompositionUsed } from './adapter';
 import { forEach, omit, mapKeys } from './utils';
@@ -119,6 +120,7 @@ class Stylesheet {
   localClassNamesSearch: AhoCorasick;
   composedClassLists: Array<{ identifier: string; regex: RegExp }>;
   layers: Map<string, Array<string>>;
+  propertyRules: Array<CSSPropertyBlock>;
 
   constructor(
     localClassNames: Array<string>,
@@ -128,6 +130,7 @@ class Stylesheet {
     this.conditionalRulesets = [new ConditionalRuleset()];
     this.fontFaceRules = [];
     this.keyframesRules = [];
+    this.propertyRules = [];
     this.localClassNamesMap = new Map(
       localClassNames.map((localClassName) => [localClassName, localClassName]),
     );
@@ -150,10 +153,17 @@ class Stylesheet {
 
       return;
     }
+
+    if (root.type === 'property') {
+      this.propertyRules.push(root);
+
+      return;
+    }
+
     if (root.type === 'keyframes') {
       root.rule = Object.fromEntries(
         Object.entries(root.rule).map(([keyframe, rule]) => {
-          return [keyframe, this.transformProperties(rule)];
+          return [keyframe, this.transformVars(this.transformProperties(rule))];
         }),
       );
       this.keyframesRules.push(root);
@@ -317,11 +327,20 @@ class Stylesheet {
       const [endIndex, [firstMatch]] = results[i];
       const startIndex = endIndex - firstMatch.length + 1;
 
-      if (startIndex >= lastReplaceIndex) {
-        // Class names can be substrings of other class names
-        // e.g. '_1g1ptzo1' and '_1g1ptzo10'
-        // If the startIndex >= lastReplaceIndex, then
-        // this is the case and this replace should be skipped
+      // Class names can be substrings of other class names
+      // e.g. '_1g1ptzo1' and '_1g1ptzo10'
+      //
+      // Additionally, concatenated classnames can contain substrings equal to other classnames
+      // e.g. '&&' where '&' is 'debugName_hash1' and 'debugName_hash1d' is also a local classname
+      // Before transforming the selector, this would look like `debugName_hash1debugName_hash1`
+      // which contains the substring `debugName_hash1d`’.
+      //
+      // In either of these cases, the last replace index will occur either before or within the
+      // current replacement range (from `startIndex` to `endIndex`).
+      // If this occurs, we skip the replacement to avoid transforming the selector incorrectly.
+      const skipReplacement = lastReplaceIndex <= endIndex;
+
+      if (skipReplacement) {
         continue;
       }
 
@@ -384,6 +403,11 @@ class Stylesheet {
         conditions,
       );
       this.transformMedia(selectorRoot, selectorRule['@media'], conditions);
+      this.transformContainer(
+        selectorRoot,
+        selectorRule['@container'],
+        conditions,
+      );
     });
   }
 
@@ -573,6 +597,11 @@ class Stylesheet {
       css.push(renderCss({ '@font-face': fontFaceRule }));
     }
 
+    // Render property rules
+    for (const property of this.propertyRules) {
+      css.push(renderCss({ [`@property ${property.name}`]: property.rule }));
+    }
+
     // Render keyframes
     for (const keyframe of this.keyframesRules) {
       css.push(renderCss({ [`@keyframes ${keyframe.name}`]: keyframe.rule }));
@@ -610,7 +639,7 @@ class Stylesheet {
   }
 }
 
-function renderCss(v: any, indent: string = '') {
+function renderCss(v: Record<string, any>, indent: string = '') {
   const rules: Array<string> = [];
 
   for (const key of Object.keys(v)) {
@@ -650,7 +679,7 @@ export function transformCss({
   localClassNames,
   cssObjs,
   composedClassLists,
-}: TransformCSSParams) {
+}: TransformCSSParams): string[] {
   const stylesheet = new Stylesheet(localClassNames, composedClassLists);
 
   for (const root of cssObjs) {
